@@ -1,7 +1,7 @@
 # Проект «Большое путешествие»
 
 * Студент: [Яна Темиргалиева](https://up.htmlacademy.ru/ecmascript/20/user/2236401).
-* Наставник: [Олег Зубов] (https://htmlacademy.ru/profile/id42701).
+* Наставник: [Олег Зубов](https://htmlacademy.ru/profile/id42701).
 
 ---
 
