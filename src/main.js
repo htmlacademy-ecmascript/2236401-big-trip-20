@@ -15,3 +15,5 @@ render(new ListFiltersView(), listFiltersContainer);
 render(new ListSortView(), tripEventsContainer);
 
 waypointListPresenter.init();
+import './mock/data-structure.js';
+import './utils.js';
