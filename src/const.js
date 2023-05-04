@@ -1,3 +1,14 @@
+const MIN_ID_NUMBER = 1;
+const MAX_ID_NUMBER = 30;
+const MIN_COUNT_PICTURES = 1;
+const MAX_COUNT_PICTURES = 10;
+const MIN_SRC_NUMBER = 100;
+const MAX_SRC_NUMBER = 200;
+const MIN_BASE_PRICE = 100;
+const MAX_BASE_PRICE = 3000;
+
+const POINTS_COUNT = 5;
+
 const DESTINATIONS_CITIES = ['Amsterdam', 'Alicante', 'Minsk', 'Tashkent', 'Chamonix', 'Geneva', 'Seoul', 'Sihanoukville', 'New York'];
 
 const WAYPOINTS_TYPES = ['Check-in', 'Sightseeing', 'Restaurant', 'Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight'];
@@ -135,4 +146,13 @@ export {
   DESTINATIONS_DESCRIPTIONS,
   PICTURES_DESCRIPTIONS,
   Offers,
+  MIN_ID_NUMBER,
+  MAX_ID_NUMBER,
+  MIN_COUNT_PICTURES,
+  MAX_COUNT_PICTURES,
+  MIN_SRC_NUMBER,
+  MAX_SRC_NUMBER,
+  MIN_BASE_PRICE,
+  MAX_BASE_PRICE,
+  POINTS_COUNT,
 };

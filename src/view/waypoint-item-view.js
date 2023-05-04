@@ -21,33 +21,25 @@ function createWaypointItemTemplate(point) {
   const eventDuration = constructionDuration(duration);
 
 
-  const getOffersByType = (offs, t) => {
-    const offersByType = offs.filter((o) => o.type === t);
-    if(offersByType && offersByType.length && offersByType[0].offers) {
-      return offersByType[0].offers;
-    }
+  const getOffersByType = (offers, offerType) => {
+    const offersByType = offers.find((offer) => offer.type === offerType);
+    return offersByType ? offersByType.offers : [];
   };
 
-  const offersArray = getOffersByType(Offers, type.toLowerCase());
+  const mapOffersIdsToOffers = (ids, offers) => ids.map((offerId) => offers.find((offer) => offerId.toString() === offer.id.toString()));
 
-  const getTitleOffersByType = () => {
-    let html = '';
-    if(offersArray.length) {
-      html = '<ul class="event__selected-offers">';
-      offersArray.forEach((offer) =>{
-        if(offer.title && offer.price) {
-          html += `
-          <li class="event__offer">
-            <span class="event__offer-title">${offer.title}</span>
-            &plus;&euro;&nbsp;
-            <span class="event__offer-price">${offer.price}</span>
-          </li>`;
-        }
-      });
-      html += '</ul>';
-    }
-    return html;
-  };
+  const typeOffers = getOffersByType(Offers, type.toLowerCase());
+  const pointOffers = mapOffersIdsToOffers(point.offers, typeOffers);
+
+  const getTitleOffersByType = () =>
+    pointOffers.map((offer) => `
+      <li class="event__offer">
+        <span class="event__offer-title">${offer.title}</span>
+        &plus;&euro;&nbsp;
+        <span class="event__offer-price">${offer.price}</span>
+      </li>`
+    ).join('');
+
 
   return (/*html*/
     `<li class="trip-events__item">
@@ -69,7 +61,7 @@ function createWaypointItemTemplate(point) {
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
-        ${getTitleOffersByType()}
+        <ul class="event__selected-offers">${getTitleOffersByType()}</ul>
 
         <button class="event__favorite-btn ${favorite}" type="button">
           <span class="visually-hidden">Add to favorite</span>

@@ -1,6 +1,4 @@
 import dayjs from 'dayjs';
-// import { Offers } from './const';
-
 
 // Функции для поиска случайного числа из диапазона
 
@@ -46,7 +44,7 @@ const getRandomOffersByType = (offers, type) => {
       return offersIDs;
     }
   }
-  return null;
+  return offersIDs;
 };
 
 

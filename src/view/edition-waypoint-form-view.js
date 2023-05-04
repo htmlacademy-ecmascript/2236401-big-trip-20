@@ -1,8 +1,6 @@
 import { saveNewWaypoint, getRandomDestination } from '../mock/data-structure.js';
 import { createElement } from '../render.js';
 import { Offers, WAYPOINTS_TYPES } from '../const.js';
-// import { getRandomOffersByType } from '../utils.js';
-
 import dayjs from 'dayjs';
 
 function createEditWaypointElement(point) {
@@ -14,9 +12,7 @@ function createEditWaypointElement(point) {
   const { description, name, pictures } = getRandomDestination();
   const cityDestination = name;
 
-  // const offersByTypes = getRandomOffersByType(Offers, type.toLowerCase());
-
-  const picturesByDestination = (photos) => {
+  const getPicturesByDestination = (photos) => {
     const picturesArr = [];
     for (let i = 0; i < photos.length; i++) {
       const picItem = photos[i];
@@ -24,22 +20,20 @@ function createEditWaypointElement(point) {
     }
     return picturesArr;
   };
-  const destinationPictures = picturesByDestination(pictures);
+  const destinationPictures = getPicturesByDestination(pictures);
 
-  const getOffersByType = (offs, t) => {
-    const offersByType = offs.filter((o) => o.type === t);
-    if(offersByType && offersByType.length && offersByType[0].offers) {
-      return offersByType[0].offers;
-    }
+  const getOffersByType = (offers, offerType) => {
+    const offersByType = offers.find((offer) => offer.type === offerType);
+    return offersByType ? offersByType.offers : [];
   };
 
-  const offersArray = getOffersByType(Offers, type.toLowerCase());
+  const typeOffers = getOffersByType(Offers, type.toLowerCase());
 
   const createOffersByType = () => {
     let callOffers = '';
-    if(offersArray.length) {
+    if (typeOffers.length) {
       callOffers = '';
-      offersArray.forEach((offer) =>{
+      typeOffers.forEach((offer) =>{
         const checked = Math.random() > 0.5 ? 'checked' : '';
         if(offer.title && offer.price && offer.id) {
           callOffers += `
