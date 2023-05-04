@@ -3,7 +3,7 @@ import {
   getRandomNumber,
   getRandomDate,
   getRandomOffersByType,
-  createRandomIdFromRangeGenerator
+  createRandomIdFromRangeGenerator,
 } from '../utils';
 import {
   DESTINATIONS_DESCRIPTIONS,
@@ -13,28 +13,29 @@ import {
   Offers
 } from '../const';
 
-const id = createRandomIdFromRangeGenerator(1,10);
+const idNumber = createRandomIdFromRangeGenerator(1,10);
 
 const getRandomDestination = () => ({
-  id: id().toString(),
+  id: idNumber() ? idNumber().toString() : '',
   description: getRandomArrayElement(DESTINATIONS_DESCRIPTIONS),
   name: getRandomArrayElement(DESTINATIONS_CITIES),
   pictures: Array.from({length: getRandomNumber(1, 10)}, () => ({
-    src: `https://loremflickr.com/248/152?random=${getRandomNumber(1,50)}`,
+    src: `https://loremflickr.com/248/152?random=${getRandomNumber(100,200)}`,
     description: getRandomArrayElement(PICTURES_DESCRIPTIONS)
   }))
 });
 
+
 const saveNewWaypoint = () => {
   const type = getRandomArrayElement(WAYPOINTS_TYPES);
   const date = getRandomDate();
-  const destination = getRandomDestination();
+  const { id } = getRandomDestination();
 
   return {
     basePrice: getRandomNumber(100, 2000),
     dateFrom: date.start,
     dateTo: date.end,
-    destination: destination.id,
+    destination: id,
     isFavorite: Math.random() > 0.5,
     offers: getRandomOffersByType(Offers, type.toLowerCase()),
     type: type
@@ -43,7 +44,7 @@ const saveNewWaypoint = () => {
 
 const createMockPoints = (count) => Array.from({ length: count }, (_, index) => saveNewWaypoint(index));
 
-export { getRandomDestination, createMockPoints };
+export { getRandomDestination, createMockPoints, saveNewWaypoint };
 //eslint-disable-next-line no-console
 console.log(getRandomDestination());
 //eslint-disable-next-line no-console

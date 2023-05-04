@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+// import { Offers } from './const';
 
 
 // Функции для поиска случайного числа из диапазона
@@ -53,7 +54,7 @@ const getRandomOffersByType = (offers, type) => {
 
 const getRandomDate = () => {
   const minCount = 1;
-  const maxCountDays = 30;
+  const maxCountDays = 15;
   const maxCountHours = 23;
   const maxCountMinutes = 59;
 
@@ -73,10 +74,40 @@ const getRandomDate = () => {
   };
 };
 
+const countDuration = (start, end) => {
+  const interval = new Date(end - start);
+
+  return {
+    days: interval.getUTCDate() - 1,
+    hours: interval.getUTCHours(),
+    minutes: interval.getUTCMinutes()
+  };
+};
+
+const constructionDuration = (interval) => {
+  const duration = [];
+  if (interval.days !== 0) {
+    duration[0] = String(interval.days).padStart(2, '0');
+    duration[0] += 'D';
+  }
+  if (interval.hours !== 0) {
+    duration[1] = String(interval.hours).padStart(2, '0');
+    duration[1] += 'H';
+  }
+  if (interval.minutes !== 0) {
+    duration[2] = String(interval.minutes).padStart(2, '0');
+    duration[2] += 'M';
+  }
+
+  return duration.join('');
+};
+
 export {
   getRandomArrayElement,
   getRandomNumber,
   getRandomDate,
   getRandomOffersByType,
-  createRandomIdFromRangeGenerator
+  createRandomIdFromRangeGenerator,
+  countDuration,
+  constructionDuration
 };

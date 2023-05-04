@@ -4,6 +4,7 @@ import WaypointItemView from '../view/waypoint-item-view';
 import EditionWaypointFormView from '../view/edition-waypoint-form-view.js';
 import '../model/waypoint-model.js';
 import { getRandomArrayElement } from '../utils.js';
+
 export default class WaypointListPresenter {
   waypointListComponent = new WaypointListView();
 
@@ -14,7 +15,6 @@ export default class WaypointListPresenter {
 
   init() {
     this.listPoints = [...this.pointsModel.getPoints()];
-
 
     render(this.waypointListComponent, this.waypointListContainer);
     render(new EditionWaypointFormView(getRandomArrayElement(this.listPoints)), this.waypointListComponent.getElement());
