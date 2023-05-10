@@ -1,8 +1,8 @@
-import { createElement } from '../render.js';
 import { saveNewWaypoint, getRandomDestination } from '../mock/data-structure.js';
 import dayjs from 'dayjs';
 import { countDuration, constructionDuration } from '../utils.js';
 import { Offers } from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function createWaypointItemTemplate(point) {
   const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
@@ -77,24 +77,23 @@ function createWaypointItemTemplate(point) {
   );
 }
 
-export default class WaypointItemView {
-  constructor({ point = saveNewWaypoint() }) {
-    this.point = point;
+export default class WaypointItemView extends AbstractView {
+  #point = null;
+  #handleEditClick = null;
+
+  constructor({ point = saveNewWaypoint(), onEditClick }) {
+    super();
+    this.#point = point;
+    this.#handleEditClick = onEditClick;
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createWaypointItemTemplate(this.point);
+  get template() {
+    return createWaypointItemTemplate(this.#point);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }
