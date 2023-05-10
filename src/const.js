@@ -140,6 +140,25 @@ const Offers = [
   }
 ];
 
+const DEFAULT_POINT_TYPE = 'taxi';
+const BLANK_WAYPOINT_DEFAULT = {
+  'basePrice': '',
+  'dateFrom': new Date(),
+  'dateTo': new Date(),
+  'destination': '',
+  'isFavorite': false,
+  'offers': [],
+  'type': DEFAULT_POINT_TYPE
+};
+
+
+const FilterType = {
+  EVERYTHING:'everything',
+  FUTURE:'future',
+  PRESENT:'present',
+  PAST:'past',
+};
+
 export {
   DESTINATIONS_CITIES,
   WAYPOINTS_TYPES,
@@ -155,4 +174,7 @@ export {
   MIN_BASE_PRICE,
   MAX_BASE_PRICE,
   POINTS_COUNT,
+  BLANK_WAYPOINT_DEFAULT,
+  DEFAULT_POINT_TYPE,
+  FilterType,
 };

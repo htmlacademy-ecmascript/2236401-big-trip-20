@@ -1,4 +1,4 @@
-import { createElement } from '../render.js';
+import AbstractView from '../framework/view/abstract-view.js';
 
 function addOnNewWaypointTemplate() {
   return (/*html*/
@@ -165,20 +165,8 @@ function addOnNewWaypointTemplate() {
   );
 }
 
-export default class AddOnNewWaypointView {
-  getTemplate() {
+export default class AddOnNewWaypointView extends AbstractView {
+  get template() {
     return addOnNewWaypointTemplate();
-  }
-
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
   }
 }

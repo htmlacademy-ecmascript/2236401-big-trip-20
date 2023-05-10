@@ -1,10 +1,10 @@
-import { saveNewWaypoint, getRandomDestination } from '../mock/data-structure.js';
-import { createElement } from '../render.js';
-import { Offers, WAYPOINTS_TYPES } from '../const.js';
+import { getRandomDestination } from '../mock/data-structure.js';
+import { BLANK_WAYPOINT_DEFAULT, Offers, WAYPOINTS_TYPES } from '../const.js';
 import dayjs from 'dayjs';
+import AbstractView from '../framework/view/abstract-view.js';
 
-function createEditWaypointElement(point) {
-  const { basePrice, dateFrom, dateTo, destination, type } = point;
+function createEventWaypointElement(point) {
+  const { basePrice, dateFrom, dateTo, type } = point;
 
   const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
   const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
@@ -81,6 +81,7 @@ function createEditWaypointElement(point) {
     return selectType;
   };
 
+
   return (/*html*/
     `<li class="trip-events__item">
       <form class="event event--edit" action="#" method="post">
@@ -107,9 +108,9 @@ function createEditWaypointElement(point) {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityDestination}" list="destination-list-1">
             <datalist id="destination-list-1">
-              <option value="${destination}"></option>
-              <option value="${destination}"></option>
-              <option value="${destination}"></option>
+              <option value="${cityDestination}"></option>
+              <option value="${cityDestination}"></option>
+              <option value="${cityDestination}"></option>
             </datalist>
           </div>
 
@@ -128,9 +129,11 @@ function createEditWaypointElement(point) {
             </label>
             <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
           </div>
-
           <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-          <button class="event__reset-btn" type="reset">Cancel</button>
+          <button class="event__reset-btn" type="reset">Delete</button>
+          <button class="event__rollup-btn" type="button">
+            <span class="visually-hidden">Open event</span>
+          </button>
         </header>
         <section class="event__details">
           <section class="event__section  event__section--offers">
@@ -157,24 +160,35 @@ function createEditWaypointElement(point) {
   );
 }
 
-export default class EditionWaypointFormView {
-  constructor({ point = saveNewWaypoint() }) {
-    this.point = point;
+export default class EventWaypointFormView extends AbstractView {
+  #point = BLANK_WAYPOINT_DEFAULT;
+  #handleFormSubmit = null;
+  #handleResetClick = null;
+  #formType = null;
+
+  constructor({ point = BLANK_WAYPOINT_DEFAULT, formType, onSubmit, onReset }) {
+    super();
+    this.#point = point;
+    this.#formType = formType;
+    this.#handleFormSubmit = onSubmit;
+    this.#handleResetClick = onReset;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#resetFormHandler);
+    this.element.querySelector('.event--edit').addEventListener('submit', this.#submitFormHandler);
+    this.element.querySelector('.event--edit').addEventListener('reset', this.#resetFormHandler);
   }
 
-  getTemplate() {
-    return createEditWaypointElement(this.point);
+
+  get template() {
+    return createEventWaypointElement(this.#point, this.#formType);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
+  #submitFormHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleFormSubmit();
+  };
 
-    return this.element;
-  }
-
-  removeElement() {
-    this.element = null;
-  }
+  #resetFormHandler = () => {
+    this.#handleResetClick();
+  };
 }
