@@ -128,6 +128,10 @@ const createFilter = (waypoints) => Object.entries(filter).map(
   }),
 );
 
+function updateItem(items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
 export {
   getRandomArrayElement,
   getRandomNumber,
@@ -138,4 +142,5 @@ export {
   constructionDuration,
   isEscapeKey,
   createFilter,
+  updateItem
 };

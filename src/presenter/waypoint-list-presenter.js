@@ -1,11 +1,11 @@
-import { render, RenderPosition, replace, remove } from '../framework/render.js';
+import { render, RenderPosition, remove } from '../framework/render.js';
 import WaypointListView from '../view/waypoint-list-view.js';
-import WaypointItemView from '../view/waypoint-item-view';
 import EventWaypointFormView from '../view/event-waypoint-form-view.js';
 import TripInfoView from '../view/trip-info-view.js';
-import { isEscapeKey } from '../utils.js';
+import { isEscapeKey, updateItem } from '../utils.js';
 import EmptyWaypointListView from '../view/empty-waypoint-list-view.js';
 import AddNewWaypointButtonView from '../view/add-new-waypoint-button-view.js';
+import PointPresenter from './point-presenter.js';
 
 export default class WaypointListPresenter {
   #headerContainer = null;
@@ -15,6 +15,7 @@ export default class WaypointListPresenter {
   #waypointListComponent = new WaypointListView();
 
   #listPoints = [];
+  #pointPresenters = new Map();
 
   constructor ({ headerContainer, waypointListContainer, pointsModel }) {
     this.#headerContainer = headerContainer;
@@ -26,7 +27,7 @@ export default class WaypointListPresenter {
   init() {
     this.#listPoints = [...this.#pointsModel.points];
 
-    render(this.#waypointListComponent, this.#waypointListContainer);
+    // render(this.#waypointListComponent, this.#waypointListContainer);
     this.#renderAddFormButton();
     if (this.#listPoints.length) {
       render(new TripInfoView(), this.#headerContainer, RenderPosition.AFTERBEGIN);
@@ -39,88 +40,74 @@ export default class WaypointListPresenter {
     render(this.#waypointListComponent, this.#waypointListContainer);
   }
 
-  #renderAddFormButton (){
+  #handleModeChange = () => {
+    this.#pointPresenters.forEach((presenter) => presenter.resetView());
+  };
+
+  #handlePointChange = (updatedPoint) => {
+    this.#listPoints = updateItem(this.#listPoints, updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
+  };
+
+  #renderAddFormButton () {
     const formType = 'add';
     const eventFormComponent = new EventWaypointFormView({
       formType,
-      onSubmit: () => {
-        removeAddForm.call(this);
-        document.removeEventListener('keydown', handleEscKeyDown);
-      },
-      onReset: () => {
-        removeAddForm.call(this);
-        document.removeEventListener('keydown', handleEscKeyDown);
-      },
+      onSubmit: submitButtonClickHandler,
+      onReset: resetButtonClickHandler
     });
 
-    function removeAddForm () {
+    function resetButtonClickHandler() {
+      removeAddForm();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    }
+
+    function submitButtonClickHandler() {
+      removeAddForm();
+      document.removeEventListener('keydown', escKeyDownHandler);
+    }
+
+    function removeAddForm() {
       remove(eventFormComponent);
     }
 
-    function handleEscKeyDown (evt) {
+    function escKeyDownHandler (evt) {
       if (isEscapeKey(evt)) {
         evt.preventDefault();
-        removeAddForm.call(this);
-        document.removeEventListener('keydown', handleEscKeyDown);
+        removeAddForm(this);
+        document.removeEventListener('keydown', escKeyDownHandler);
       }
     }
 
-    const addWaypointButton = new AddNewWaypointButtonView({onAddClick: () => {
+    const addWaypointButton = new AddNewWaypointButtonView({ onAddClickHandler: () => {
       this.#renderAddForm(eventFormComponent);
-      document.addEventListener('keydown', handleEscKeyDown);
+      document.addEventListener('keydown', escKeyDownHandler);
+      //eslint-disable-next-line no-console
+      console.log(1);
     }});
 
     render(addWaypointButton, this.#headerContainer, RenderPosition.BEFOREEND);
   }
 
-  #renderAddForm(eventFormComponent){
+  #renderAddForm = (eventFormComponent) => {
     render (eventFormComponent, this.#waypointListComponent.element, RenderPosition.AFTERBEGIN);
-  }
+  };
 
-
-  #renderWaypoints(point, waypointIndex) {
-    const formType = 'edit';
-
-    const waypointComponent = new WaypointItemView({
-      point,
-      onEditClick: () => {
-        replaceComponent.call(this, 'point');
-        document.addEventListener('keydown', handleEscKeyDown);
-      }
-    });
-
-    const eventFormComponent = new EventWaypointFormView({
-      point,
-      waypointIndex,
+  #renderWaypoints = (point, destinations, offers) => {
+    const formType = 'add';
+    const pointPresenter = new PointPresenter({
+      waypointListContainer: this.#waypointListComponent.element,
       formType,
-      onSubmit: () => {
-        replaceComponent.call(this, 'form');
-        document.removeEventListener('keydown', handleEscKeyDown);
-      },
-      onReset: () => {
-        replaceComponent.call(this, 'form');
-        document.removeEventListener('keydown', handleEscKeyDown);
-      },
+      onDataChange:this.#handlePointChange,
+      onModeChange: this.#handleModeChange
     });
+    pointPresenter.init(point, destinations, offers);
+    this.#pointPresenters.set(point.id, pointPresenter);
+  };
 
-    function replaceComponent (componentType) {
-      const replacingComponent = componentType === 'point'
-        ? eventFormComponent
-        : waypointComponent;
-      const replaceableComponent = componentType === 'point'
-        ? waypointComponent
-        : eventFormComponent;
-      replace(replacingComponent,replaceableComponent);
-    }
 
-    function handleEscKeyDown (evt) {
-      if (isEscapeKey(evt)) {
-        evt.preventDefault();
-        replaceComponent.call(this, waypointComponent.element, eventFormComponent.element);
-        document.removeEventListener('keydown', handleEscKeyDown);
-      }
-    }
-
-    render(waypointComponent, this.#waypointListComponent.element);
+  #clearPointList() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
   }
 }

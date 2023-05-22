@@ -185,7 +185,7 @@ export default class EventWaypointFormView extends AbstractView {
 
   #submitFormHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit();
+    this.#handleFormSubmit(this.#point);
   };
 
   #resetFormHandler = () => {

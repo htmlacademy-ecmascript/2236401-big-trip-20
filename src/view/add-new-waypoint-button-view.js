@@ -5,13 +5,14 @@ const createNewWaypoinButtonTemplate = () => '<button class="trip-main__event-ad
 export default class AddNewWaypointButtonView extends AbstractView {
   #handleClick = null;
 
-  constructor({ onAddClick }) {
+  constructor({ onAddClickHandler }) {
+    // console.log(123)
     super();
-    this.#handleClick = onAddClick;
+    this.#handleClick = onAddClickHandler;
     this.element.addEventListener('click', this.#clickHandler);
   }
 
-  get template(){
+  get template() {
     return createNewWaypoinButtonTemplate();
   }
 
