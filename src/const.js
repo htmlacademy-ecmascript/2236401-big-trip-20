@@ -153,10 +153,16 @@ const BLANK_WAYPOINT_DEFAULT = {
 
 
 const FilterType = {
-  EVERYTHING:'everything',
-  FUTURE:'future',
-  PRESENT:'present',
-  PAST:'past',
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past',
+};
+
+const SortType = {
+  DAY: 'day',
+  TIME: 'time',
+  PRICE: 'price',
 };
 
 export {
@@ -177,4 +183,5 @@ export {
   BLANK_WAYPOINT_DEFAULT,
   DEFAULT_POINT_TYPE,
   FilterType,
+  SortType
 };
