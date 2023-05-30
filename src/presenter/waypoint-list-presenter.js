@@ -9,7 +9,6 @@ import {
   sortByDay,
   sortByPrice,
   sortByTime,
-  // filter
 } from '../utils.js';
 import { SortType } from '../const.js';
 import EmptyWaypointListView from '../view/empty-waypoint-list-view.js';
@@ -66,7 +65,8 @@ export default class WaypointListPresenter {
     }
     this.#sortPoints(sortType);
     this.#clearPointList();
-    this.#renderWaypoints();
+    this.#renderWaypointsEvents();
+    this.#renderSort();
   };
 
   #sortPoints(sortType) {
@@ -89,7 +89,7 @@ export default class WaypointListPresenter {
 
   #renderSort = () => {
     this.#sortComponent = new ListSortView({
-      currentSortortType: this.#currentSortType,
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
@@ -159,8 +159,8 @@ export default class WaypointListPresenter {
     remove(this.#sortComponent);
   }
 
-  #renderWaypointsEvents(waypoints) {
-    waypoints.forEach((waypoint) => this.#renderWaypoints(waypoint, this.destinations, this.offers));
+  #renderWaypointsEvents() {
+    this.#listPoints.forEach((waypoint) => this.#renderWaypoints(waypoint, this.destinations, this.offers));
   }
 
   #renderNoEvents() {
