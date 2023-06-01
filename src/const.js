@@ -165,6 +165,11 @@ const SortType = {
   PRICE: 'price',
 };
 
+const FormType = {
+  ADDING: 'adding',
+  EDITING: 'editing',
+};
+
 export {
   DESTINATIONS_CITIES,
   WAYPOINTS_TYPES,
@@ -183,5 +188,6 @@ export {
   BLANK_WAYPOINT_DEFAULT,
   DEFAULT_POINT_TYPE,
   FilterType,
-  SortType
+  SortType,
+  FormType
 };

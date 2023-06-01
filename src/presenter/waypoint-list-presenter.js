@@ -145,7 +145,7 @@ export default class WaypointListPresenter {
     const pointPresenter = new PointPresenter({
       waypointListContainer: this.#waypointListComponent.element,
       formType,
-      onDataChange:this.#handlePointChange,
+      onDataChange: this.#handlePointChange,
       onModeChange: this.#handleModeChange
     });
     pointPresenter.init(point, destination, offers);
@@ -153,10 +153,16 @@ export default class WaypointListPresenter {
   };
 
 
-  #clearPointList() {
+  #clearPointList({resetSortType = false} = {}) {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
     remove(this.#sortComponent);
+    if(this.#emptyWaypointComponent){
+      remove(this.#emptyWaypointComponent);
+    }
+    if(resetSortType){
+      this.#currentSortType = SortType.DAY;
+    }
   }
 
   #renderWaypointsEvents() {
@@ -188,6 +194,7 @@ export default class WaypointListPresenter {
     this.#renderTripInfo();
 
     this.#renderSort();
+    this.#listPoints.sort(sortByDay);
     this.#renderPointsList();
   }
 }
