@@ -1,12 +1,13 @@
-import { saveNewWaypoint, getRandomDestination } from '../mock/data-structure.js';
+import { getRandomDestination } from '../mock/data-structure.js';
 import dayjs from 'dayjs';
 import { countDuration, constructionDuration } from '../utils.js';
 import { Offers } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
 function createWaypointItemTemplate(point) {
-  const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
-  const { name, } = getRandomDestination();
+  const { type, basePrice, dateFrom, dateTo, isFavorite } = point;
+
+  const { name } = getRandomDestination();
   const cityDestination = name;
   const favorite = isFavorite ? 'event__favorite-btn--active' : '';
 
@@ -26,19 +27,19 @@ function createWaypointItemTemplate(point) {
     return offersByType ? offersByType.offers : [];
   };
 
-  const mapOffersIdsToOffers = (ids, offers) => ids.map((offerId) => offers.find((offer) => offerId.toString() === offer.id.toString()));
-
   const typeOffers = getOffersByType(Offers, type.toLowerCase());
-  const pointOffers = mapOffersIdsToOffers(point.offers, typeOffers);
 
-  const getTitleOffersByType = () =>
-    pointOffers.map((offer) => `
+  const getTitleOffersByType = typeOffers.map((offer) => {
+    if (point.offers.includes(offer.id)) {
+      return (`
       <li class="event__offer">
         <span class="event__offer-title">${offer.title}</span>
         &plus;&euro;&nbsp;
         <span class="event__offer-price">${offer.price}</span>
-      </li>`
-    ).join('');
+      </li>`);
+    }
+    return '';
+  }).join('');
 
 
   return (/*html*/
@@ -61,7 +62,7 @@ function createWaypointItemTemplate(point) {
           &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
-        <ul class="event__selected-offers">${getTitleOffersByType()}</ul>
+        <ul class="event__selected-offers">${getTitleOffersByType}</ul>
 
         <button class="event__favorite-btn ${favorite}" type="button">
           <span class="visually-hidden">Add to favorite</span>
@@ -78,13 +79,17 @@ function createWaypointItemTemplate(point) {
 }
 
 export default class WaypointItemView extends AbstractView {
+  #destination = null;
+  #offers = null;
   #point = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({ point = saveNewWaypoint(), onEditClick, onFavoriteClick }) {
+  constructor({ destination, offers, point, onEditClick, onFavoriteClick }) {
     super();
     this.#point = point;
+    this.#destination = destination;
+    this.#offers = offers;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
 
@@ -95,7 +100,7 @@ export default class WaypointItemView extends AbstractView {
   }
 
   get template() {
-    return createWaypointItemTemplate(this.#point);
+    return createWaypointItemTemplate(this.#point, this.#destination);
   }
 
   #editClickHandler = (evt) => {

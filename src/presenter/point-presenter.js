@@ -38,16 +38,16 @@ export default class PointPresenter {
 
     this.#pointComponent = new WaypointItemView({
       point: this.#point,
-      destinations:this.#destinations,
-      offers:this.#offers,
+      destination: this.#destinations,
+      offers: this.#offers,
       onEditClick: this.#pointEditClickHandler,
       onFavoriteClick: this.#handleFavoriteClick,
     });
 
     this.#pointEditComponent = new EventWaypointFormView({
       point: this.#point,
-      destinations:this.#destinations,
-      offers:this.#offers,
+      destination: this.#destinations,
+      offers: this.#offers,
       formType,
       onSubmit: this.#pointSubmitHandler,
       onReset: this.#resetButtonClickHandler
@@ -94,7 +94,7 @@ export default class PointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (isEscapeKey) {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#replaceFormToPoint();
       this.#pointEditComponent.reset(this.#point);

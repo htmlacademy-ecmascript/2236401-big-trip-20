@@ -20,8 +20,8 @@ export default class WaypointListPresenter {
   #waypointListContainer = null;
   #pointsModel = null;
 
-  #filtersModel = null;
-  #filterType = null;
+  // #filtersModel = null;
+  // #filterType = null;
 
   #sortComponent = null;
   #currentSortType = SortType.DAY;
@@ -31,6 +31,8 @@ export default class WaypointListPresenter {
   #emptyWaypointComponent = new EmptyWaypointListView();
 
   #listPoints = [];
+  #destinations = [];
+  #offers = [];
   #pointPresenters = new Map();
 
   constructor ({ headerContainer, waypointListContainer, pointsModel }) {
@@ -43,6 +45,8 @@ export default class WaypointListPresenter {
 
   init() {
     this.#listPoints = [...this.#pointsModel.points];
+    this.#destinations = this.#pointsModel.destinations;
+    this.#offers = this.#pointsModel.offers;
     this.#sourcedListPoints = [...this.#pointsModel.points];
 
     this.#renderAddFormButton();
@@ -140,15 +144,15 @@ export default class WaypointListPresenter {
     render (eventFormComponent, this.#waypointListComponent.element, RenderPosition.AFTERBEGIN);
   };
 
-  #renderWaypoints = (point, destination, offers) => {
+  #renderWaypoints = (point, destinations, offers) => {
     const formType = 'add';
     const pointPresenter = new PointPresenter({
       waypointListContainer: this.#waypointListComponent.element,
       formType,
       onDataChange: this.#handlePointChange,
-      onModeChange: this.#handleModeChange
+      onModeChange: this.#handleModeChange,
     });
-    pointPresenter.init(point, destination, offers);
+    pointPresenter.init(point, destinations, offers);
     this.#pointPresenters.set(point?.id, pointPresenter);
   };
 
@@ -166,7 +170,7 @@ export default class WaypointListPresenter {
   }
 
   #renderWaypointsEvents() {
-    this.#listPoints.forEach((waypoint) => this.#renderWaypoints(waypoint, this.destinations, this.offers));
+    this.#listPoints.forEach((waypoint) => this.#renderWaypoints(waypoint, this.#destinations, this.#offers));
   }
 
   #renderNoEvents() {
@@ -175,7 +179,7 @@ export default class WaypointListPresenter {
 
   #renderPointsList() {
     if (this.#listPoints.length) {
-      this.#renderWaypointsEvents(this.#listPoints);
+      this.#renderWaypointsEvents();
     } else {
       this.#renderNoEvents();
       return;

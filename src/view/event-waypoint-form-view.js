@@ -5,7 +5,6 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 
-
 const createFormControlsTemplate = (formType) => {
   const resetButtonText = formType === 'edit' ? 'Delete' : 'Cancel';
   return /*html*/`<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -16,12 +15,12 @@ const createFormControlsTemplate = (formType) => {
 };
 
 function createEventWaypointElement(point, formType) {
-  const { basePrice, dateFrom, dateTo, type, id } = point;
+  const { basePrice, dateFrom, dateTo, type, id, offers } = point;
 
   const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
   const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
 
-  const { description, name, pictures } = getRandomDestination();
+  const { description, pictures, name } = getRandomDestination();
   const cityDestination = name;
 
   const getPicturesByDestination = (photos) => {
@@ -34,33 +33,44 @@ function createEventWaypointElement(point, formType) {
   };
   const destinationPictures = getPicturesByDestination(pictures);
 
-  const getOffersByType = (offers, offerType) => {
-    const offersByType = offers.find((offer) => offer.type === offerType);
+  const getOffersByType = (offersData, offerType) => {
+    const offersByType = offersData.find((offer) => offer.type === offerType);
     return offersByType ? offersByType.offers : [];
   };
 
   const typeOffers = getOffersByType(Offers, type.toLowerCase());
 
-  const createOffersByType = () => {
-    let callOffers = '';
-    if (typeOffers.length) {
-      callOffers = '';
-      typeOffers.forEach((offer) => {
-        const checked = Math.random() > 0.5 ? 'checked' : '';
-        if(offer.title && offer.price && offer.id) {
-          callOffers += `
-          <div class="event__offer-selector">
-            <input class="event__offer-checkbox  visually-hidden" id="event-offer-${offer.id}" type="checkbox" name="event-offer-${offer.id}" ${checked} data-offer-id="${offer.id}">
-            <label class="event__offer-label" for="event-offer-${offer.id}">
-              <span class="event__offer-title">${offer.title}</span>
-              &plus;&euro;&nbsp;
-              <span class="event__offer-price">${offer.price}</span>
-            </label>
-          </div>`;
-        }
-      });
+
+  const createOffersData = (typeOffersData, DataOffers) => typeOffersData.map((offer) => {
+    const checked = DataOffers.includes(offer.id) ? 'checked' : '';
+
+    return (/*html*/
+      `<div class="event__offer-selector">
+        <input
+          class="event__offer-checkbox visually-hidden"
+          id="event-offer-${offer.id}"
+          type="checkbox"
+          name="event-offer-${offer.id}"
+          data-offer-id="${offer.id}"
+          ${checked}
+        >
+        <label class="event__offer-label" for="event-offer-${offer.id}">
+          <span class="event__offer-title">${offer.title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${offer.price}</span>
+        </label>
+      </div>`);
+  }).join('');
+
+  const createOffersTemplate = (typeOffersData, dataOffers) => {
+    if (!typeOffersData.length) {
+      return '';
     }
-    return callOffers;
+    return (/*html*/`
+      <div class="event__available-offers">
+        ${createOffersData(typeOffers, dataOffers)}
+      </div>
+    `);
   };
 
   const createDestinationPictures = () => {
@@ -95,17 +105,16 @@ function createEventWaypointElement(point, formType) {
 
   const controlsTemplate = createFormControlsTemplate(formType);
 
-  const createDestinationsTemplate = () => {
+  const createDestinationsTemplate = (arr) => {
     let chosenDestination = '';
-    if (DESTINATIONS_CITIES.length) {
-      DESTINATIONS_CITIES.map((destination) => {
-        if (destination) {
-          chosenDestination += `<option value="${destination}"></option>`;
-        }
+    if (arr.length) {
+      arr.forEach((destinations) => {
+        chosenDestination += `<option value="${destinations}"></option>`;
       });
     }
     return chosenDestination;
   };
+
 
   return (/*html*/
     `<li class="trip-events__item">
@@ -133,7 +142,7 @@ function createEventWaypointElement(point, formType) {
             </label>
             <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityDestination}" list="destination-list-1">
             <datalist id="destination-list-1">
-              ${createDestinationsTemplate()}
+              ${createDestinationsTemplate(DESTINATIONS_CITIES)}
             </datalist>
           </div>
 
@@ -159,7 +168,8 @@ function createEventWaypointElement(point, formType) {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
             <div class="event__available-offers">
-              ${createOffersByType()}
+            ${createOffersTemplate(typeOffers, offers)}
+
             </div>
           </section>
 
@@ -184,13 +194,12 @@ export default class EventWaypointFormView extends AbstractStatefulView {
   #handleResetClick = null;
   #handleDeleteClick = null;
   #formType = null;
-  #destinations = null;
+  #destination = null;
   #offers = null;
-  // #datepicker = null;
   #dateFromPicker = null;
   #dateToPicker = null;
 
-  constructor({ point = BLANK_WAYPOINT_DEFAULT, formType, onSubmit, onReset, onDelete, destinations, offers }) {
+  constructor({ point = BLANK_WAYPOINT_DEFAULT, formType, onSubmit, onReset, onDelete, destination, offers }) {
     super();
     this._setState(EventWaypointFormView.parsePointToState(point));
     this.#formType = formType;
@@ -198,13 +207,13 @@ export default class EventWaypointFormView extends AbstractStatefulView {
     this.#handleResetClick = onReset;
     this.#handleDeleteClick = onDelete;
     this._restoreHandlers();
-    this.#destinations = destinations;
+    this.#destination = destination;
     this.#offers = offers;
   }
 
 
   get template() {
-    return createEventWaypointElement(this._state, this.#formType, this.#destinations, this.#offers);
+    return createEventWaypointElement(this._state, this.#formType, this.#destination, this.#offers);
   }
 
   removeElement = () => {
@@ -273,7 +282,7 @@ export default class EventWaypointFormView extends AbstractStatefulView {
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const chosenDestination = this.#destinations.find((item) => item.name === evt.target.value);
+    const chosenDestination = this.#destination.find((item) => item.name === evt.target.value);
 
     if (chosenDestination) {
       this.updateElement({
