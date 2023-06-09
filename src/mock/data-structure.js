@@ -2,14 +2,11 @@ import {
   getRandomArrayElement,
   getRandomNumber,
   getRandomDate,
-  getRandomOffersByType,
 } from '../utils';
 import {
   DESTINATIONS_DESCRIPTIONS,
   PICTURES_DESCRIPTIONS,
   DESTINATIONS_CITIES,
-  WAYPOINTS_TYPES,
-  Offers,
   MIN_COUNT_PICTURES,
   MAX_COUNT_PICTURES,
   MIN_BASE_PRICE,
@@ -17,42 +14,50 @@ import {
 } from '../const';
 
 
-const getRandomDestination = () => ({
+const generateDestination = () => {
+  const city = getRandomArrayElement(DESTINATIONS_CITIES);
+  const description = getRandomArrayElement(PICTURES_DESCRIPTIONS);
+
+  return {
+    id: crypto.randomUUID(),
+    description: getRandomArrayElement(DESTINATIONS_DESCRIPTIONS),
+    name: city,
+    pictures: Array.from({length: getRandomNumber(MIN_COUNT_PICTURES, MAX_COUNT_PICTURES)}, () => ({
+      src: `https://loremflickr.com/248/152?random=${crypto.randomUUID()}`,
+      description: `${city} ${description}`
+    }))
+  };
+};
+
+const generateOffer = (type) => ({
   id: crypto.randomUUID(),
-  description: getRandomArrayElement(DESTINATIONS_DESCRIPTIONS),
-  name: getRandomArrayElement(DESTINATIONS_CITIES),
-  pictures: Array.from({length: getRandomNumber(MIN_COUNT_PICTURES, MAX_COUNT_PICTURES)}, () => ({
-    src: `https://loremflickr.com/248/152?random=${crypto.randomUUID()}`,
-    description: getRandomArrayElement(PICTURES_DESCRIPTIONS)
-  }))
+  title: `Offer ${type}`,
+  price: getRandomNumber(10, 300)
 });
 
-
-const saveNewWaypoint = () => {
-  const type = getRandomArrayElement(WAYPOINTS_TYPES);
+const generatePoint = (type, destinationId, offerId) => {
   const date = getRandomDate();
-  const { id } = getRandomDestination();
-
   return {
     id: crypto.randomUUID(),
     basePrice: getRandomNumber(MIN_BASE_PRICE, MAX_BASE_PRICE),
     dateFrom: date.start,
     dateTo: date.end,
-    destination: id,
+    destination: destinationId,
     isFavorite: Math.random() > 0.5,
-    offers: getRandomOffersByType(Offers, type.toLowerCase()),
-    type: type
+    offers: offerId,
+    type
   };
 };
 
-const createMockPoints = (count) => Array.from({ length: count }, (_, index) => saveNewWaypoint(index));
-
 export {
-  getRandomDestination,
-  createMockPoints,
-  saveNewWaypoint,
+  generateDestination,
+  generateOffer,
+  generatePoint
+
 };
 //eslint-disable-next-line no-console
-console.log(getRandomDestination());
+console.log(generateDestination());
 //eslint-disable-next-line no-console
-console.log(saveNewWaypoint());
+console.log(generateOffer());
+//eslint-disable-next-line no-console
+console.log(generatePoint());

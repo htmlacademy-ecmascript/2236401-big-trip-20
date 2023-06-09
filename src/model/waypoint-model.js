@@ -1,10 +1,10 @@
-import { createMockPoints, getRandomDestination } from '../mock/data-structure';
+import { createMockPoints, tripDestinations } from '../mock/data-structure';
 import { Offers, POINTS_COUNT } from '../const';
 
 export default class PointsModel {
   #points = createMockPoints(POINTS_COUNT);
   #offers = Offers;
-  #destination = getRandomDestination();
+  #destinations = tripDestinations;
 
   get points() {
     return this.#points;
@@ -14,7 +14,7 @@ export default class PointsModel {
     return this.#offers;
   }
 
-  get destination() {
-    return this.#destination;
+  get destinations() {
+    return this.#destinations;
   }
 }

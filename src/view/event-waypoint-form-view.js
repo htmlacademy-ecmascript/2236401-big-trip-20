@@ -1,5 +1,4 @@
-import { getRandomDestination } from '../mock/data-structure.js';
-import { BLANK_WAYPOINT_DEFAULT, Offers, WAYPOINTS_TYPES, FormType, DESTINATIONS_CITIES } from '../const.js';
+import { BLANK_WAYPOINT_DEFAULT, WAYPOINTS_TYPES, FormType, DESTINATIONS_CITIES } from '../const.js';
 import dayjs from 'dayjs';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
@@ -14,13 +13,18 @@ const createFormControlsTemplate = (formType) => {
     </button>` : ''}`;
 };
 
-function createEventWaypointElement(point, formType) {
-  const { basePrice, dateFrom, dateTo, type, id, offers } = point;
+function createEventWaypointElement({point, pointDestinations, pointOffers, formType}) {
+  const { basePrice, dateFrom, dateTo, type, id } = point;
+  // console.log(basePrice, dateFrom, dateTo, type, id)
+  // console.log(point, pointDestinations, pointOffers, formType)
+
+  const destinationById = pointDestinations.find((event) => event.id === point.destination);
+  const { name, description, pictures } = destinationById;
+
 
   const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
   const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
 
-  const { description, pictures, name } = getRandomDestination();
   const cityDestination = name;
 
   const getPicturesByDestination = (photos) => {
@@ -33,45 +37,23 @@ function createEventWaypointElement(point, formType) {
   };
   const destinationPictures = getPicturesByDestination(pictures);
 
-  const getOffersByType = (offersData, offerType) => {
-    const offersByType = offersData.find((offer) => offer.type === offerType);
-    return offersByType ? offersByType.offers : [];
-  };
 
-  const typeOffers = getOffersByType(Offers, type.toLowerCase());
+  const isChecked = (offer) => point.offers.includes(offer.id) ? 'checked' : '';
 
+  const getByTypeOffers = (offersByType) => pointOffers.find((offer) => offer.type.toLowerCase() === offersByType).offers;
+  const needsOffers = getByTypeOffers(type.toLowerCase());
 
-  const createOffersData = (typeOffersData, DataOffers) => typeOffersData.map((offer) => {
-    const checked = DataOffers.includes(offer.id) ? 'checked' : '';
-
-    return (/*html*/
-      `<div class="event__offer-selector">
-        <input
-          class="event__offer-checkbox visually-hidden"
-          id="event-offer-${offer.id}"
-          type="checkbox"
-          name="event-offer-${offer.id}"
-          data-offer-id="${offer.id}"
-          ${checked}
-        >
-        <label class="event__offer-label" for="event-offer-${offer.id}">
+  const offersList = needsOffers
+    .map((offer) => `
+      <div class="event__offer-selector">
+        <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" data-offer-id="${offer.id}" ${isChecked(offer)}>
+        <label class="event__offer-label" for="${offer.id}">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
           <span class="event__offer-price">${offer.price}</span>
         </label>
-      </div>`);
-  }).join('');
-
-  const createOffersTemplate = (typeOffersData, dataOffers) => {
-    if (!typeOffersData.length) {
-      return '';
-    }
-    return (/*html*/`
-      <div class="event__available-offers">
-        ${createOffersData(typeOffers, dataOffers)}
-      </div>
-    `);
-  };
+      </div>`)
+    .join('');
 
   const createDestinationPictures = () => {
     let pics = '';
@@ -89,8 +71,8 @@ function createEventWaypointElement(point, formType) {
   const createSelectionType = () => {
     let selectType = '';
     if (WAYPOINTS_TYPES.length) {
-      WAYPOINTS_TYPES.forEach((typeEvent) => {
-        const checked = typeEvent === type ? 'checked' : '';
+      WAYPOINTS_TYPES.map((typeEvent) => {
+        const checked = typeEvent.toLowerCase() === type.toLowerCase() ? 'checked' : '';
         if(typeEvent) {
           selectType += `
           <div class="event__type-item">
@@ -108,8 +90,8 @@ function createEventWaypointElement(point, formType) {
   const createDestinationsTemplate = (arr) => {
     let chosenDestination = '';
     if (arr.length) {
-      arr.forEach((destinations) => {
-        chosenDestination += `<option value="${destinations}"></option>`;
+      arr.forEach((event) => {
+        chosenDestination += `<option value="${event}"></option>`;
       });
     }
     return chosenDestination;
@@ -168,7 +150,7 @@ function createEventWaypointElement(point, formType) {
             <h3 class="event__section-title  event__section-title--offers">Offers</h3>
 
             <div class="event__available-offers">
-            ${createOffersTemplate(typeOffers, offers)}
+            ${offersList}
 
             </div>
           </section>
@@ -190,30 +172,32 @@ function createEventWaypointElement(point, formType) {
 }
 
 export default class EventWaypointFormView extends AbstractStatefulView {
+  #destinations = null;
+  #offers = null;
   #handleFormSubmit = null;
   #handleResetClick = null;
   #handleDeleteClick = null;
   #formType = null;
-  #destination = null;
-  #offers = null;
   #dateFromPicker = null;
   #dateToPicker = null;
 
-  constructor({ point = BLANK_WAYPOINT_DEFAULT, formType, onSubmit, onReset, onDelete, destination, offers }) {
+  constructor({ point = BLANK_WAYPOINT_DEFAULT, pointDestinations, pointOffers, formType, onSubmit, onReset, onDelete }) {
     super();
+    // console.log(point, pointDestinations, pointOffers, formType)
+    // this.#point = point;
     this._setState(EventWaypointFormView.parsePointToState(point));
+    this.#destinations = pointDestinations;
+    this.#offers = pointOffers;
     this.#formType = formType;
     this.#handleFormSubmit = onSubmit;
     this.#handleResetClick = onReset;
     this.#handleDeleteClick = onDelete;
     this._restoreHandlers();
-    this.#destination = destination;
-    this.#offers = offers;
   }
 
 
   get template() {
-    return createEventWaypointElement(this._state, this.#formType, this.#destination, this.#offers);
+    return createEventWaypointElement({point: this._state, pointDestinations: this.#destinations, pointOffers: this.#offers, formType: this.#formType});
   }
 
   removeElement = () => {
@@ -275,28 +259,31 @@ export default class EventWaypointFormView extends AbstractStatefulView {
     if (evt.target.tagName === 'INPUT') {
       this.updateElement({
         type: evt.target.value,
-        offers:[]
+        offers: []
       });
     }
   };
 
   #destinationChangeHandler = (evt) => {
     evt.preventDefault();
-    const chosenDestination = this.#destination.find((item) => item.name === evt.target.value);
-
-    if (chosenDestination) {
-      this.updateElement({
-        destination: chosenDestination.id
-      });
-    } else {
-      evt.target.value = '';
+    if (!evt.target.value) {
+      return;
     }
+
+    const updatedDestination = this.#destinations.find((tripDestination) => tripDestination.name === evt.target.value);
+
+    const updatedDestinationId = (updatedDestination) ? updatedDestination.id : null;
+
+    this.updateElement({
+      ...this._state,
+      destination: updatedDestinationId
+    });
   };
 
   #offerCheckHandler = (evt) => {
     evt.preventDefault();
     if (evt.target.tagName === 'INPUT') {
-      const checkedOfferId = Number(evt.target.dataset.offerId);
+      const checkedOfferId = evt.target.dataset.offerId;
       const checkedOfferIndex = this._state.offers.indexOf(checkedOfferId);
       if (checkedOfferIndex === -1) {
         this._state.offers.push(checkedOfferId);
@@ -365,8 +352,6 @@ export default class EventWaypointFormView extends AbstractStatefulView {
   }
 
   static parseStateToPoint(state) {
-    const point = {...state};
-
-    return point;
+    return state;
   }
 }

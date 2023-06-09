@@ -19,38 +19,43 @@ export default class WaypointListPresenter {
   #headerContainer = null;
   #waypointListContainer = null;
   #pointsModel = null;
+  #destinationsModel = null;
+  #offersModel = null;
 
   // #filtersModel = null;
   // #filterType = null;
 
   #sortComponent = null;
   #currentSortType = SortType.DAY;
-  #sourcedListPoints = [];
 
   #waypointListComponent = new WaypointListView();
   #emptyWaypointComponent = new EmptyWaypointListView();
 
   #listPoints = [];
-  #destinations = [];
-  #offers = [];
+  #sourcedListPoints = [];
+
+  // #destinations = null;
+  // #offers = null;
   #pointPresenters = new Map();
 
-  constructor ({ headerContainer, waypointListContainer, pointsModel }) {
+  constructor ({ headerContainer, waypointListContainer, destinationsModel, offersModel, pointsModel }) {
     this.#headerContainer = headerContainer;
     this.#waypointListContainer = waypointListContainer;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
     this.#pointsModel = pointsModel;
-    this.filterType = '';
+    // this.filterType = '';
+    // this.#listPoints = [...this.#pointsModel.get()];
   }
 
 
   init() {
-    this.#listPoints = [...this.#pointsModel.points];
-    this.#destinations = this.#pointsModel.destinations;
-    this.#offers = this.#pointsModel.offers;
-    this.#sourcedListPoints = [...this.#pointsModel.points];
-
-    this.#renderAddFormButton();
+    this.#listPoints = [...this.#pointsModel.get()];
+    this.#sourcedListPoints = [...this.#pointsModel.get()];
+    // this.#destinations = [...this.#pointsModel.destinations];
+    // this.#offers = [...this.#pointsModel.offers];
     this.#renderTrip();
+    this.#renderAddFormButton();
   }
 
   #handleModeChange = () => {
@@ -103,9 +108,12 @@ export default class WaypointListPresenter {
   #renderAddFormButton () {
     const formType = 'add';
     const eventFormComponent = new EventWaypointFormView({
+      point: this.#listPoints[0],
+      pointDestinations: this.#destinationsModel.get(),
+      pointOffers: this.#offersModel.get(),
       formType,
       onSubmit: submitButtonClickHandler,
-      onReset: resetButtonClickHandler
+      onReset: resetButtonClickHandler,
     });
 
     function resetButtonClickHandler() {
@@ -134,7 +142,7 @@ export default class WaypointListPresenter {
       this.#renderAddForm(eventFormComponent);
       document.addEventListener('keydown', escKeyDownHandler);
       //eslint-disable-next-line no-console
-      console.log(1);
+      // console.log(1);
     }});
 
     render(addWaypointButton, this.#headerContainer, RenderPosition.BEFOREEND);
@@ -144,15 +152,17 @@ export default class WaypointListPresenter {
     render (eventFormComponent, this.#waypointListComponent.element, RenderPosition.AFTERBEGIN);
   };
 
-  #renderWaypoints = (point, destinations, offers) => {
+  #renderWaypoint = (point) => {
     const formType = 'add';
     const pointPresenter = new PointPresenter({
       waypointListContainer: this.#waypointListComponent.element,
+      destinationsModel: this.#destinationsModel,
+      offersModel: this.#offersModel,
       formType,
       onDataChange: this.#handlePointChange,
-      onModeChange: this.#handleModeChange,
+      onModeChange: this.#handleModeChange
     });
-    pointPresenter.init(point, destinations, offers);
+    pointPresenter.init(point);
     this.#pointPresenters.set(point?.id, pointPresenter);
   };
 
@@ -170,7 +180,9 @@ export default class WaypointListPresenter {
   }
 
   #renderWaypointsEvents() {
-    this.#listPoints.forEach((waypoint) => this.#renderWaypoints(waypoint, this.#destinations, this.#offers));
+    for (let i = 0; i < this.#listPoints.length; i++) {
+      this.#renderWaypoint(this.#listPoints[i]);
+    }
   }
 
   #renderNoEvents() {
@@ -178,13 +190,12 @@ export default class WaypointListPresenter {
   }
 
   #renderPointsList() {
-    if (this.#listPoints.length) {
-      this.#renderWaypointsEvents();
-    } else {
+    render(this.#waypointListComponent, this.#waypointListContainer);
+    if (!this.#listPoints.length) {
       this.#renderNoEvents();
       return;
     }
-    render(this.#waypointListComponent, this.#waypointListContainer);
+    this.#renderWaypointsEvents();
   }
 
   #renderTripInfo() {
