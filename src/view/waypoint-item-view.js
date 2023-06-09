@@ -1,13 +1,13 @@
-import { saveNewWaypoint, getRandomDestination } from '../mock/data-structure.js';
 import dayjs from 'dayjs';
 import { countDuration, constructionDuration } from '../utils.js';
-import { Offers } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createWaypointItemTemplate(point) {
-  const { basePrice, dateFrom, dateTo, type, isFavorite } = point;
-  const { name, } = getRandomDestination();
-  const cityDestination = name;
+function createWaypointItemTemplate(point, pointDestination, pointOffers) {
+  const { type, basePrice, dateFrom, dateTo, isFavorite } = point;
+  // console.log(point, pointDestination, pointOffers,)
+
+  const { name } = pointDestination;
+
   const favorite = isFavorite ? 'event__favorite-btn--active' : '';
 
   const startDay = dayjs(dateFrom).format('MMM D');
@@ -20,26 +20,22 @@ function createWaypointItemTemplate(point) {
   const duration = countDuration(dateFrom, dateTo);
   const eventDuration = constructionDuration(duration);
 
+  const checkedOffers = pointOffers.filter((offer) => point.offers.includes(offer.id));
 
-  const getOffersByType = (offers, offerType) => {
-    const offersByType = offers.find((offer) => offer.type === offerType);
-    return offersByType ? offersByType.offers : [];
+  const getTitleOffersByType = () => {
+    let needsOffers = '';
+    checkedOffers.forEach((checkedOffer) => {
+      const { title, price } = checkedOffer;
+      const selectedOffer = `
+        <li class="event__offer">
+          <span class="event__offer-title">${title}</span>
+          &plus;&euro;&nbsp;
+          <span class="event__offer-price">${price}</span>
+       </li>`;
+      needsOffers += selectedOffer;
+    });
+    return needsOffers;
   };
-
-  const mapOffersIdsToOffers = (ids, offers) => ids.map((offerId) => offers.find((offer) => offerId.toString() === offer.id.toString()));
-
-  const typeOffers = getOffersByType(Offers, type.toLowerCase());
-  const pointOffers = mapOffersIdsToOffers(point.offers, typeOffers);
-
-  const getTitleOffersByType = () =>
-    pointOffers.map((offer) => `
-      <li class="event__offer">
-        <span class="event__offer-title">${offer.title}</span>
-        &plus;&euro;&nbsp;
-        <span class="event__offer-price">${offer.price}</span>
-      </li>`
-    ).join('');
-
 
   return (/*html*/
     `<li class="trip-events__item">
@@ -48,7 +44,7 @@ function createWaypointItemTemplate(point) {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type.toLowerCase()}.png" alt="Event ${type} icon">
         </div>
-        <h3 class="event__title">${type} ${cityDestination}</h3>
+        <h3 class="event__title">${type} ${name}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${startTimeDateTime}">${startTime}</time>
@@ -79,14 +75,20 @@ function createWaypointItemTemplate(point) {
 
 export default class WaypointItemView extends AbstractView {
   #point = null;
+  #pointDestination = null;
+  #pointOffers = null;
   #handleEditClick = null;
   #handleFavoriteClick = null;
 
-  constructor({ point = saveNewWaypoint(), onEditClick, onFavoriteClick }) {
+  constructor({ point, pointDestination, pointOffers, onEditClick, onFavoriteClick }) {
     super();
+    // console.log(point, pointDestination, pointOffers)
     this.#point = point;
+    this.#pointDestination = pointDestination;
+    this.#pointOffers = pointOffers;
     this.#handleEditClick = onEditClick;
     this.#handleFavoriteClick = onFavoriteClick;
+
 
     this.element.querySelector('.event__rollup-btn')
       .addEventListener('click', this.#editClickHandler);
@@ -95,7 +97,7 @@ export default class WaypointItemView extends AbstractView {
   }
 
   get template() {
-    return createWaypointItemTemplate(this.#point);
+    return createWaypointItemTemplate(this.#point, this.#pointDestination, this.#pointOffers);
   }
 
   #editClickHandler = (evt) => {

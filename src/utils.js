@@ -145,6 +145,10 @@ const sortByPrice = (pointA, pointB) => pointB.basePrice - pointA.basePrice;
 
 const sortByDay = (pointA, pointB) => dayjs(pointA.dateFrom).diff(dayjs(pointB.dateFrom));
 
+const getOffersByType = (offers, offerType) => {
+  const offersByType = offers.find((offer) => offer.type === offerType);
+  return offersByType ? offersByType.offers : [];
+};
 
 export {
   getRandomArrayElement,
@@ -160,5 +164,6 @@ export {
   sortByDay,
   sortByPrice,
   sortByTime,
-  filter
+  filter,
+  getOffersByType
 };

@@ -10,7 +10,7 @@ export default class FiltersPresenter extends AbstractView {
   constructor({ listFiltersContainer, pointsModel }) {
     super();
     this.#listFiltersContainer = listFiltersContainer;
-    this.#points = pointsModel.points;
+    this.#points = pointsModel.get();
   }
 
   init(){

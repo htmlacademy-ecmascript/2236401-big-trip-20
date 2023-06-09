@@ -15,39 +15,43 @@ export default class PointPresenter {
 
   #pointComponent = null;
   #pointEditComponent = null;
-
+  #formType = null;
   #point = null;
-  #destinations = null;
-  #offers = null;
+  #destinationsModel = null;
+  #offersModel = null;
   #mode = Mode.DEFAULT;
 
-  constructor ({ waypointListContainer, onDataChange, onModeChange }) {
+  constructor ({ waypointListContainer, destinationsModel, offersModel, formType, onDataChange, onModeChange }) {
     this.#waypointListContainer = waypointListContainer;
+    this.#destinationsModel = destinationsModel;
+    this.#offersModel = offersModel;
+    this.#formType = formType;
     this.#handleDataChange = onDataChange;
     this.#handleModeChange = onModeChange;
   }
 
-  init(point, destinations, offers) {
+  init(point) {
     this.#point = point;
-    this.#destinations = destinations;
-    this.#offers = offers;
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
-
+    const formType = 'edit';
     this.#pointComponent = new WaypointItemView({
       point: this.#point,
-      destinations:this.#destinations,
-      offers:this.#offers,
+      pointDestination: this.#destinationsModel.getById(point.destination),
+      pointOffers: this.#offersModel.getByType(point.type),
       onEditClick: this.#pointEditClickHandler,
       onFavoriteClick: this.#handleFavoriteClick,
     });
+
     this.#pointEditComponent = new EventWaypointFormView({
       point: this.#point,
-      destinations:this.#destinations,
-      offers:this.#offers,
+      pointDestinations: this.#destinationsModel.get(),
+      pointOffers: this.#offersModel.get(),
+      formType,
       onSubmit: this.#pointSubmitHandler,
-      onReset: this.#resetButtonClickHandler
+      onReset: this.#resetButtonClickHandler,
+      onDelete: '',
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
@@ -74,6 +78,7 @@ export default class PointPresenter {
 
   resetView() {
     if (this.#mode !== Mode.DEFAULT) {
+      this.#pointEditComponent.reset(this.#point);
       this.#replaceFormToPoint();
     }
   }
@@ -90,9 +95,10 @@ export default class PointPresenter {
   };
 
   #escKeyDownHandler = (evt) => {
-    if (isEscapeKey) {
+    if (isEscapeKey(evt)) {
       evt.preventDefault();
       this.#replaceFormToPoint();
+      this.#pointEditComponent.reset(this.#point);
       document.removeEventListener('keydown', this.#escKeyDownHandler);
     }
   };
