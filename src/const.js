@@ -29,117 +29,6 @@ const PICTURES_DESCRIPTIONS = [
   'Nullam nunc ex.'
 ];
 
-const Offers = [
-  {
-    type: 'check-in',
-    offers: [
-      {
-        id: 1,
-        title: 'Add breakfast',
-        price: 50
-      }
-    ]
-  },
-  {
-    type: 'sightseeing',
-    offers: [
-      {
-        id: 10,
-        title: 'Book tickets',
-        price: 40
-      },
-      {
-        id: 20,
-        title: 'Lunch in city',
-        price: 30
-      }
-    ]
-  },
-  {
-    type: 'restaurant',
-    offers: [
-      {
-        id: 100,
-        title: 'Brunch',
-        price: 20
-      },
-      {
-        id: 200,
-        title: 'Takeaway lunch',
-        price: 12
-      },
-      {
-        id: 321,
-        title: 'Cooking master class',
-        price: 30
-      }
-    ]
-  },
-  {
-    type: 'taxi',
-    offers: [
-      {
-        id: 2341,
-        title: 'Order Uber',
-        price: 40
-      }
-    ]
-  },
-  {
-    type: 'bus',
-    offers: [
-      {
-        id: 1541,
-        title: 'airport-hotel route',
-        price: 20
-      },
-      {
-        id: 442,
-        title: 'City tour',
-        price: 10
-      }
-    ]
-  },
-  {
-    type: 'train',
-    offers: []
-  },
-  {
-    type: 'ship',
-    offers: []
-  },
-  {
-    type: 'drive',
-    offers: [
-      {
-        id: 71,
-        title: 'Rent a car',
-        price: 200
-      },
-      {
-        id: 82,
-        title: 'Car rental with driver',
-        price: 1000
-      }
-    ]
-  },
-  {
-    type: 'flight',
-    offers: [
-      {
-        id: 51,
-        title: 'Add luggage',
-        price: 50
-      },
-      {
-        id: 442,
-        title: 'Switch to comfort',
-        price: 80
-      }
-    ]
-  }
-];
-
 const DEFAULT_POINT_TYPE = 'taxi';
 const BLANK_WAYPOINT_DEFAULT = {
   'basePrice': '',
@@ -151,12 +40,18 @@ const BLANK_WAYPOINT_DEFAULT = {
   'type': DEFAULT_POINT_TYPE
 };
 
-
 const FilterType = {
   EVERYTHING: 'everything',
   FUTURE: 'future',
   PRESENT: 'present',
   PAST: 'past',
+};
+
+const EmptyListMessage = {
+  EVERYTHING: 'Click New Event to create your first point',
+  FUTURE: 'There are no future events now',
+  PRESENT: 'There are no present events now',
+  PAST: 'There are no past events now',
 };
 
 const SortType = {
@@ -170,12 +65,23 @@ const FormType = {
   EDITING: 'editing',
 };
 
+const UserAction = {
+  UPDATE_POINT: 'UPDATE_POINT',
+  ADD_POINT: 'ADD_POINT',
+  DELETE_POINT: 'DELETE_POINT',
+};
+
+const UpdateType = {
+  PATCH: 'PATCH',
+  MINOR: 'MINOR',
+  MAJOR: 'MAJOR',
+};
+
 export {
   DESTINATIONS_CITIES,
   WAYPOINTS_TYPES,
   DESTINATIONS_DESCRIPTIONS,
   PICTURES_DESCRIPTIONS,
-  Offers,
   MIN_ID_NUMBER,
   MAX_ID_NUMBER,
   MIN_COUNT_PICTURES,
@@ -189,5 +95,8 @@ export {
   DEFAULT_POINT_TYPE,
   FilterType,
   SortType,
-  FormType
+  FormType,
+  UserAction,
+  UpdateType,
+  EmptyListMessage
 };

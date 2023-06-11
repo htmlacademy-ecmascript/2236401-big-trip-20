@@ -1,41 +1,65 @@
-import { BLANK_WAYPOINT_DEFAULT, WAYPOINTS_TYPES, FormType, DESTINATIONS_CITIES } from '../const.js';
-import dayjs from 'dayjs';
+import { BLANK_WAYPOINT_DEFAULT, DEFAULT_POINT_TYPE, WAYPOINTS_TYPES, FormType, DESTINATIONS_CITIES } from '../const.js';
+// import dayjs from 'dayjs';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
+import he from 'he';
+
+const createDestinationsTemplate = (arr) => {
+  let chosenDestination = '';
+  if (arr.length) {
+    arr.forEach((event) => {
+      chosenDestination += `<option value="${he.encode(event)}"></option>`;
+    });
+  }
+  return chosenDestination;
+};
+
+const createFormTypeTemplate = (pointType, id) =>
+  WAYPOINTS_TYPES.map((type) => /*html*/
+    `<div class="event__type-item">
+      <input id="event-type-${type.toLowerCase()}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}" ${pointType.toLowerCase() === type.toLowerCase() ? 'checked' : ''}>
+      <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type.toLowerCase()}-${id}">${type}</label>
+    </div>`
+  ).join('');
+
+const createFormPhotosGalleryTemplate = (pictures) => {
+  if(!pictures || pictures.length === 0){
+    return '';
+  }
+  return`<div class="event__photos-container">
+    <div class="event__photos-tape">
+      ${pictures.map((picture) => `<img class="event__photo" src=${picture.src} alt=${picture.alt}>`)}
+  </div>`;
+};
 
 const createFormControlsTemplate = (formType) => {
-  const resetButtonText = formType === 'edit' ? 'Delete' : 'Cancel';
-  return /*html*/`<button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-    <button class="event__reset-btn" type="reset"">${resetButtonText}</button>
-    ${formType === 'edit' ? `<button class="event__rollup-btn" type="button">
+  const getResetButtonText = () => {
+    if(formType === FormType.EDITING) {
+      return 'Delete';
+    }
+    return 'Cancel';
+  };
+  return /*html*/`
+    <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
+    <button class="event__reset-btn" type="reset">${getResetButtonText()}</button>
+    ${formType === FormType.EDITING ? `<button class="event__rollup-btn" type="button" >
       <span class="visually-hidden">Open event</span>
     </button>` : ''}`;
 };
 
-function createEventWaypointElement({point, pointDestinations, pointOffers, formType}) {
-  const { basePrice, dateFrom, dateTo, type, id } = point;
-  // console.log(basePrice, dateFrom, dateTo, type, id)
-  // console.log(point, pointDestinations, pointOffers, formType)
+const getDestination = (id, destinations) => destinations.find((destination) => destination.id === id);
 
-  const destinationById = pointDestinations.find((event) => event.id === point.destination);
-  const { name, description, pictures } = destinationById;
-
-
-  const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
-  const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
-
-  const cityDestination = name;
-
-  const getPicturesByDestination = (photos) => {
-    const picturesArr = [];
-    for (let i = 0; i < photos.length; i++) {
-      const picItem = photos[i];
-      picturesArr.push(picItem);
-    }
-    return picturesArr;
-  };
-  const destinationPictures = getPicturesByDestination(pictures);
+const createEventWaypointElement = ({point, pointDestinations, pointOffers, formType}) => {
+  // console.log(point, pointDestinations, pointOffers, formType);
+  const { basePrice, dateFrom, dateTo, destination, type, id } = point;
+  const pointType = type !== '' ? type.toLowerCase() : DEFAULT_POINT_TYPE;
+  const typeListTemplate = createFormTypeTemplate(pointType.toLowerCase(), id);
+  const destinationInfo = getDestination(destination, pointDestinations);
+  const controlsTemplate = createFormControlsTemplate(formType);
+  // const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
+  // const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
+  // const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
 
 
   const isChecked = (offer) => point.offers.includes(offer.id) ? 'checked' : '';
@@ -55,121 +79,68 @@ function createEventWaypointElement({point, pointDestinations, pointOffers, form
       </div>`)
     .join('');
 
-  const createDestinationPictures = () => {
-    let pics = '';
-    if (destinationPictures.length) {
-      destinationPictures.forEach((photo) => {
-        if (photo.src && photo.description) {
-          pics += `
-        <img class="event__photo" src="${photo.src}" alt="${photo.description}">`;
-        }
-      });
-    }
-    return pics;
-  };
 
-  const createSelectionType = () => {
-    let selectType = '';
-    if (WAYPOINTS_TYPES.length) {
-      WAYPOINTS_TYPES.map((typeEvent) => {
-        const checked = typeEvent.toLowerCase() === type.toLowerCase() ? 'checked' : '';
-        if(typeEvent) {
-          selectType += `
-          <div class="event__type-item">
-            <input id="event-type-${typeEvent.toLowerCase()}-1" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${typeEvent.toLowerCase()}" ${checked}>
-            <label class="event__type-label  event__type-label--${typeEvent.toLowerCase()}" for="event-type-${typeEvent.toLowerCase()}-1">${typeEvent}</label>
-          </div>`;
-        }
-      });
-    }
-    return selectType;
-  };
-
-  const controlsTemplate = createFormControlsTemplate(formType);
-
-  const createDestinationsTemplate = (arr) => {
-    let chosenDestination = '';
-    if (arr.length) {
-      arr.forEach((event) => {
-        chosenDestination += `<option value="${event}"></option>`;
-      });
-    }
-    return chosenDestination;
-  };
-
-
-  return (/*html*/
-    `<li class="trip-events__item">
-      <form class="event event--edit" action="#" method="post">
-        <header class="event__header">
-          <div class="event__type-wrapper">
-            <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
-              <span class="visually-hidden">Choose event type</span>
-              <img class="event__type-icon" width="17" height="17" src="img/icons/${type.toLowerCase()}.png" alt="Event ${type} icon">
-            </label>
-            <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
-
-            <div class="event__type-list">
-              <fieldset class="event__type-group">
-                <legend class="visually-hidden">Event type</legend>
-
-                ${createSelectionType()}
-              </fieldset>
-            </div>
+  return(/*html*/`
+  <li class="trip-events__item">
+    <form class="event event--edit" action="#" method="post">
+      <header class="event__header">
+        <div class="event__type-wrapper">
+          <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
+            <span class="visually-hidden">Choose event type</span>
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType}.png" alt="Event type icon">
+          </label>
+          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
+          <div class="event__type-list">
+            <fieldset class="event__type-group">
+              <legend class="visually-hidden">Event type</legend>
+                ${typeListTemplate}
+            </fieldset>
           </div>
+        </div>
+        <div class="event__field-group  event__field-group--destination">
+          <label class="event__label  event__type-output" for="event-destination-${id}">
+            ${pointType}
+          </label>
+          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destinationInfo ? destinationInfo.name : ''}" list="destination-list-${id}">
+          <datalist id="destination-list-${id}">
+            ${createDestinationsTemplate(DESTINATIONS_CITIES)}
+          </datalist>
+        </div>
 
-          <div class="event__field-group  event__field-group--destination">
-            <label class="event__label  event__type-output" for="event-destination-1">
-              ${type}
-            </label>
-            <input class="event__input  event__input--destination" id="event-destination-1" type="text" name="event-destination" value="${cityDestination}" list="destination-list-1">
-            <datalist id="destination-list-1">
-              ${createDestinationsTemplate(DESTINATIONS_CITIES)}
-            </datalist>
-          </div>
+        <div class="event__field-group  event__field-group--time">
+          <label class="visually-hidden" for="event-start-time-${id}">From</label>
+          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom}"}>
+          &mdash;
+          <label class="visually-hidden" for="event-end-time-${id}">To</label>
+          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dateTo}">
+        </div>
 
-          <div class="event__field-group  event__field-group--time">
-            <label class="visually-hidden" for="event-start-time-${id}">From</label>
-            <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${timeFrom}">
-            &mdash;
-            <label class="visually-hidden" for="event-end-time-${id}">To</label>
-            <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${timeTo}">
-          </div>
-
-          <div class="event__field-group  event__field-group--price">
-            <label class="event__label" for="event-price-1">
-              <span class="visually-hidden">Price</span>
-              &euro;
-            </label>
-            <input class="event__input  event__input--price" id="event-price-1" type="text" name="event-price" value="${basePrice}">
-          </div>
-         ${controlsTemplate}
-        </header>
-        <section class="event__details">
-          <section class="event__section  event__section--offers">
-            <h3 class="event__section-title  event__section-title--offers">Offers</h3>
-
-            <div class="event__available-offers">
+        <div class="event__field-group  event__field-group--price">
+          <label class="event__label" for="event-price-${id}">
+            <span class="visually-hidden">Price</span>
+            &euro;
+          </label>
+          <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${he.encode(basePrice.toString())}">
+        </div>
+        ${controlsTemplate}
+      </header>
+      <section class="event__details">
+        <section class="event__section  event__section--offers">
+          <h3 class="event__section-title  event__section-title--offers">Offers</h3>
+          <div class="event__available-offers">
             ${offersList}
-
-            </div>
-          </section>
-
-          <section class="event__section  event__section--destination">
-            <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-            <p class="event__destination-description">${cityDestination} ${description}</p>
-
-            <div class="event__photos-container">
-              <div class="event__photos-tape">
-                ${createDestinationPictures()}
-              </div>
-            </div>
-          </section>
+          </div>
         </section>
-      </form>
-    </li>`
+        ${destinationInfo ? `<section class="event__section  event__section--destination">
+          <h3 class="event__section-title  event__section-title--destination">Destination</h3>
+          <p class="event__destination-description">${destinationInfo.name}, ${destinationInfo.description}</p>
+          ${createFormPhotosGalleryTemplate(destinationInfo.pictures)}
+        </section>
+      </section>` : ''}
+    </form>
+  </li>`
   );
-}
+};
 
 export default class EventWaypointFormView extends AbstractStatefulView {
   #destinations = null;
@@ -184,7 +155,6 @@ export default class EventWaypointFormView extends AbstractStatefulView {
   constructor({ point = BLANK_WAYPOINT_DEFAULT, pointDestinations, pointOffers, formType, onSubmit, onReset, onDelete }) {
     super();
     // console.log(point, pointDestinations, pointOffers, formType)
-    // this.#point = point;
     this._setState(EventWaypointFormView.parsePointToState(point));
     this.#destinations = pointDestinations;
     this.#offers = pointOffers;
@@ -213,7 +183,6 @@ export default class EventWaypointFormView extends AbstractStatefulView {
       this.#dateToPicker = null;
     }
   };
-
 
   reset(point) {
     this.updateElement(EventWaypointFormView.parsePointToState(point));
@@ -352,6 +321,7 @@ export default class EventWaypointFormView extends AbstractStatefulView {
   }
 
   static parseStateToPoint(state) {
-    return state;
+    const point = {...state};
+    return point;
   }
 }

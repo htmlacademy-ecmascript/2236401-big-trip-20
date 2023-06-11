@@ -128,10 +128,6 @@ const createFilter = (waypoints) => Object.entries(filter).map(
   }),
 );
 
-function updateItem(items, update) {
-  return items.map((item) => item.id === update.id ? update : item);
-}
-
 // сортировка точек маршрута
 
 const sortByTime = (pointA, pointB) => {
@@ -150,6 +146,8 @@ const getOffersByType = (offers, offerType) => {
   return offersByType ? offersByType.offers : [];
 };
 
+const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
+
 export {
   getRandomArrayElement,
   getRandomNumber,
@@ -160,10 +158,10 @@ export {
   constructionDuration,
   isEscapeKey,
   createFilter,
-  updateItem,
   sortByDay,
   sortByPrice,
   sortByTime,
   filter,
-  getOffersByType
+  getOffersByType,
+  isDatesEqual
 };
