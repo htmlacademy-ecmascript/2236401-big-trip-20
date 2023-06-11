@@ -184,7 +184,6 @@ export default class EventWaypointFormView extends AbstractStatefulView {
     }
   };
 
-
   reset(point) {
     this.updateElement(EventWaypointFormView.parsePointToState(point));
   }
