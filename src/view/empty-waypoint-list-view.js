@@ -1,19 +1,20 @@
 import AbstractView from '../framework/view/abstract-view.js';
+import { FilterType, EmptyListMessage } from '../const.js';
 
 const createWaypointListEmptyTemplate = (filterType) => {
   let messageText = '';
   switch (filterType){
-    case 'past':
-      messageText = 'There are no past events now';
+    case FilterType.PAST:
+      messageText = EmptyListMessage.PAST;
       break;
-    case 'present':
-      messageText = 'There are no present events now';
+    case FilterType.PRESENT:
+      messageText = EmptyListMessage.PRESENT;
       break;
-    case 'future':
-      messageText = 'There are no future events now';
+    case FilterType.FUTURE:
+      messageText = EmptyListMessage.FUTURE;
       break;
     default:
-      messageText = 'Click New Event to create your first point';
+      messageText = EmptyListMessage.EVERYTHING;
       break;
   }
 
@@ -23,7 +24,7 @@ const createWaypointListEmptyTemplate = (filterType) => {
 export default class ListEmptyView extends AbstractView {
   #filterType = null;
 
-  constructor(filterType = 'everything'){
+  constructor({filterType}){
     super();
     this.#filterType = filterType;
   }

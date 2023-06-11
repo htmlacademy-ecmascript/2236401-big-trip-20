@@ -1,13 +1,16 @@
-export default class DestinationsModel {
+import Observable from '../framework/observable.js';
+
+export default class DestinationsModel extends Observable {
   #service = [];
   #destinations = [];
 
   constructor(service) {
+    super();
     this.#service = service;
     this.#destinations = this.#service.destinations;
   }
 
-  get() {
+  get destinations() {
     return this.#destinations;
   }
 

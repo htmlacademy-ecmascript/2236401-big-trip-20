@@ -6,7 +6,6 @@ export default class AddNewWaypointButtonView extends AbstractView {
   #handleClick = null;
 
   constructor({ onAddClickHandler }) {
-    // console.log(123)
     super();
     this.#handleClick = onAddClickHandler;
     this.element.addEventListener('click', this.#clickHandler);

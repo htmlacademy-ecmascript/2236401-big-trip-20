@@ -24,7 +24,7 @@ const generateDestination = () => {
     name: city,
     pictures: Array.from({length: getRandomNumber(MIN_COUNT_PICTURES, MAX_COUNT_PICTURES)}, () => ({
       src: `https://loremflickr.com/248/152?random=${crypto.randomUUID()}`,
-      description: `${city} ${description}`
+      description: `${description}`
     }))
   };
 };
@@ -53,7 +53,6 @@ export {
   generateDestination,
   generateOffer,
   generatePoint
-
 };
 //eslint-disable-next-line no-console
 console.log(generateDestination());

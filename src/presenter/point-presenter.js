@@ -1,7 +1,8 @@
 import { render, replace, remove } from '../framework/render.js';
 import WaypointItemView from '../view/waypoint-item-view';
 import EventWaypointFormView from '../view/event-waypoint-form-view.js';
-import { isEscapeKey } from '../utils.js';
+import { isEscapeKey, isDatesEqual } from '../utils.js';
+import { UserAction, UpdateType, FormType } from '../const.js';
 
 const Mode = {
   DEFAULT: 'DEFAULT',
@@ -35,7 +36,7 @@ export default class PointPresenter {
 
     const prevPointComponent = this.#pointComponent;
     const prevPointEditComponent = this.#pointEditComponent;
-    const formType = 'edit';
+
     this.#pointComponent = new WaypointItemView({
       point: this.#point,
       pointDestination: this.#destinationsModel.getById(point.destination),
@@ -46,12 +47,12 @@ export default class PointPresenter {
 
     this.#pointEditComponent = new EventWaypointFormView({
       point: this.#point,
-      pointDestinations: this.#destinationsModel.get(),
-      pointOffers: this.#offersModel.get(),
-      formType,
+      pointDestinations: this.#destinationsModel.destinations,
+      pointOffers: this.#offersModel.offers,
+      formType: FormType.EDITING,
       onSubmit: this.#pointSubmitHandler,
       onReset: this.#resetButtonClickHandler,
-      onDelete: '',
+      onDelete: this.#handleDeleteClick,
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
@@ -114,12 +115,31 @@ export default class PointPresenter {
   };
 
   #handleFavoriteClick = () => {
-    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      UpdateType.MINOR,
+      {...this.#point, isFavorite: !this.#point.isFavorite},
+    );
   };
 
-  #pointSubmitHandler = (point) => {
-    this.#handleDataChange(point);
+  #pointSubmitHandler = (update) => {
+    const isMinorUpdate = !isDatesEqual(this.#point.dateFrom, update.dateFrom) ||
+      !isDatesEqual(this.#point.dateTo, update.dateTo) ||
+      !(this.#point.basePrice === update.basePrice);
+    this.#handleDataChange(
+      UserAction.UPDATE_POINT,
+      isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
+      update,
+    );
     this.#replaceFormToPoint();
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+  };
+
+  #handleDeleteClick = (point) => {
+    this.#handleDataChange(
+      UserAction.DELETE_POINT,
+      UpdateType.MINOR,
+      point
+    );
   };
 }
