@@ -1,19 +1,10 @@
-import { BLANK_WAYPOINT_DEFAULT, DEFAULT_POINT_TYPE, WAYPOINTS_TYPES, FormType, DESTINATIONS_CITIES } from '../const.js';
+import { BLANK_WAYPOINT_DEFAULT, DEFAULT_POINT_TYPE, WAYPOINTS_TYPES, FormType } from '../const.js';
 // import dayjs from 'dayjs';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
-const createDestinationsTemplate = (arr) => {
-  let chosenDestination = '';
-  if (arr.length) {
-    arr.forEach((event) => {
-      chosenDestination += `<option value="${he.encode(event)}"></option>`;
-    });
-  }
-  return chosenDestination;
-};
 
 const createFormTypeTemplate = (pointType, id) =>
   WAYPOINTS_TYPES.map((type) => /*html*/
@@ -59,16 +50,15 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
   const controlsTemplate = createFormControlsTemplate(formType);
   // const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
   // const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
-  // const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
+  const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
 
 
   const isChecked = (offer) => point.offers.includes(offer.id) ? 'checked' : '';
 
-  const getByTypeOffers = (offersByType) => pointOffers.find((offer) => offer.type.toLowerCase() === offersByType).offers;
+  const getByTypeOffers = (offersByType) => pointOffers?.find((offer) => offer.type.toLowerCase() === offersByType)?.offers;
   const needsOffers = getByTypeOffers(type.toLowerCase());
 
-  const offersList = needsOffers
-    .map((offer) => `
+  const offersList = needsOffers?.map((offer) => `
       <div class="event__offer-selector">
         <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" data-offer-id="${offer.id}" ${isChecked(offer)}>
         <label class="event__offer-label" for="${offer.id}">
@@ -103,7 +93,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
           </label>
           <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destinationInfo ? destinationInfo.name : ''}" list="destination-list-${id}">
           <datalist id="destination-list-${id}">
-            ${createDestinationsTemplate(DESTINATIONS_CITIES)}
+            ${destinationsList}
           </datalist>
         </div>
 
@@ -133,7 +123,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
         </section>
         ${destinationInfo ? `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destinationInfo.name}, ${destinationInfo.description}</p>
+          <p class="event__destination-description">${destinationInfo.description}</p>
           ${createFormPhotosGalleryTemplate(destinationInfo.pictures)}
         </section>
       </section>` : ''}

@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { FilterType } from './const';
 
-// Функции для поиска случайного числа из диапазона
+// // Функции для поиска случайного числа из диапазона
 
 const getRandomInteger = (min, max) => {
   const lower = Math.ceil(Math.min(min, max));
@@ -10,25 +10,8 @@ const getRandomInteger = (min, max) => {
   return Math.floor(result);
 };
 
-const createRandomIdFromRangeGenerator = (min, max) => {
-  const previousValues = [];
-
-  return function () {
-    let currentValue = getRandomInteger(min, max);
-    if (previousValues.length >= (max - min + 1)) {
-      return null;
-    }
-    while (previousValues.includes(currentValue)) {
-      currentValue = getRandomInteger(min, max);
-    }
-    previousValues.push(currentValue);
-    return currentValue;
-  };
-};
 
 const getRandomNumber = (min, max) => getRandomInteger(min, max);
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
-
 
 //Функция для генерации дополнительных предложений
 
@@ -149,11 +132,8 @@ const getOffersByType = (offers, offerType) => {
 const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
 
 export {
-  getRandomArrayElement,
-  getRandomNumber,
   getRandomDate,
   getRandomOffersByType,
-  createRandomIdFromRangeGenerator,
   countDuration,
   constructionDuration,
   isEscapeKey,

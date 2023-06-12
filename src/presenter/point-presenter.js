@@ -32,6 +32,7 @@ export default class PointPresenter {
   }
 
   init(point) {
+    // console.log(this.#destinationsModel.destinations);
     this.#point = point;
 
     const prevPointComponent = this.#pointComponent;
