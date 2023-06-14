@@ -10,27 +10,23 @@ const getRandomInteger = (min, max) => {
   return Math.floor(result);
 };
 
-
 const getRandomNumber = (min, max) => getRandomInteger(min, max);
 
-//Функция для генерации дополнительных предложений
 
-const getRandomOffersByType = (offers, type) => {
-  const index = offers.map((offer) => offer.type).indexOf(type);
-  const offersIDs = [];
+const getByTypeOffers = (type, offers)=> offers?.find((offer) => type === offer.type);
 
-  if (index !== -1) {
-    const offersByType = offers[index].offers;
-    if (offersByType) {
-      for (let i = 0; i < offersByType.length; i++) {
-        offersIDs.push(offersByType[i].id.toString());
-      }
-      return offersIDs;
-    }
+const getCheckedOffers = (type, pointOffers, offers) => {
+  const offersByType = getByTypeOffers(type, offers);
+  if (!offersByType || !offersByType.offers) {
+    return;
   }
-  return offersIDs;
+  const checkedOffers = offersByType.offers.filter((offer) =>
+    pointOffers
+      .some((offerId) => offerId === offer.id));
+  return checkedOffers;
 };
 
+const getDestination = (id, destinations) => destinations.find((destination) => destination.id === id);
 
 //Функция для генерации случайных дат
 
@@ -133,7 +129,6 @@ const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
 
 export {
   getRandomDate,
-  getRandomOffersByType,
   countDuration,
   constructionDuration,
   isEscapeKey,
@@ -143,5 +138,7 @@ export {
   sortByTime,
   filter,
   getOffersByType,
-  isDatesEqual
+  isDatesEqual,
+  getCheckedOffers,
+  getDestination
 };
