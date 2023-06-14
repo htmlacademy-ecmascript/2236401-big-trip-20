@@ -4,7 +4,6 @@ import AbstractView from '../framework/view/abstract-view.js';
 
 function createWaypointItemTemplate(point, pointDestination, pointOffers) {
   const { type, basePrice, dateFrom, dateTo, isFavorite } = point;
-  // console.log(point, pointDestination, pointOffers,)
   const name = pointDestination?.name;
   const favorite = isFavorite ? 'event__favorite-btn--active' : '';
 
@@ -80,7 +79,6 @@ export default class WaypointItemView extends AbstractView {
 
   constructor({ point, pointDestination, pointOffers, onEditClick, onFavoriteClick }) {
     super();
-    // console.log(point, pointDestination, pointOffers)
     this.#point = point;
     this.#pointDestination = pointDestination;
     this.#pointOffers = pointOffers;
