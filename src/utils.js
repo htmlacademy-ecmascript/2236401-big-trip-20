@@ -13,7 +13,7 @@ const getRandomInteger = (min, max) => {
 const getRandomNumber = (min, max) => getRandomInteger(min, max);
 
 
-const getByTypeOffers = (type, offers)=> offers?.find((offer) => type === offer.type);
+const getByTypeOffers = (type, offers) => offers?.find((offer) => type === offer.type);
 
 const getCheckedOffers = (type, pointOffers, offers) => {
   const offersByType = getByTypeOffers(type, offers);

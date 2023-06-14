@@ -32,7 +32,6 @@ export default class PointPresenter {
   }
 
   init(point) {
-    // console.log(this.#destinationsModel.destinations);
     this.#point = point;
 
     const prevPointComponent = this.#pointComponent;
@@ -169,7 +168,7 @@ export default class PointPresenter {
       isMinorUpdate ? UpdateType.MINOR : UpdateType.PATCH,
       update,
     );
-    // this.#replaceFormToPoint();
+
     document.removeEventListener('keydown', this.#escKeyDownHandler);
   };
 

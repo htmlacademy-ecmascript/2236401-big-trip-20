@@ -3,8 +3,8 @@ const WAYPOINTS_TYPES = ['Check-in', 'Sightseeing', 'Restaurant', 'Taxi', 'Bus',
 const DEFAULT_POINT_TYPE = 'taxi';
 const BLANK_WAYPOINT_DEFAULT = {
   'basePrice': '',
-  'dateFrom': new Date(),
-  'dateTo': new Date(),
+  'dateFrom': '',
+  'dateTo': '',
   'destination': '',
   'isFavorite': false,
   'offers': [],
@@ -49,6 +49,13 @@ const UpdateType = {
   INIT: 'INIT',
 };
 
+const FormatPattern = {
+  TRIP_INFO_DATE: 'D MMM',
+  DATE: 'MMM D',
+  TIME: 'HH:mm',
+  DATETIME: 'DD/MM/YY HH:mm',
+};
+
 export {
   WAYPOINTS_TYPES,
   BLANK_WAYPOINT_DEFAULT,
@@ -58,5 +65,6 @@ export {
   FormType,
   UserAction,
   UpdateType,
-  EmptyListMessage
+  EmptyListMessage,
+  FormatPattern
 };

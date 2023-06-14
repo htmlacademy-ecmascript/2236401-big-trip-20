@@ -28,8 +28,6 @@ export default class WaypointListPresenter {
   #offersModel = null;
 
   #filterType = FilterType.EVERYTHING;
-  #filtersContainer = null;
-  #filtersPresenter = null;
   #filtersModel = null;
   #newPointPresenter = null;
 
@@ -38,7 +36,7 @@ export default class WaypointListPresenter {
 
   #waypointListComponent = new WaypointListView();
   #emptyWaypointComponent = null;
-  #tripInfoComponent = new TripInfoView();
+  #tripInfoComponent = null;
   #loadingComponent = new LoadingView();
   #isLoading = true;
 
@@ -142,6 +140,8 @@ export default class WaypointListPresenter {
     switch (updateType) {
       case UpdateType.PATCH:
         this.#pointPresenters.get(data.id).init(data);
+        remove(this.#tripInfoComponent);
+        this.#renderTripInfo();
         break;
       case UpdateType.MINOR:
         this.#clearPointList();
@@ -160,11 +160,15 @@ export default class WaypointListPresenter {
   };
 
   #renderTripInfo() {
+    const allPoints = [...this.#pointsModel.points].sort(sortByDay);
+    if(!allPoints.length){
+      return '';
+    }
+    this.#tripInfoComponent = new TripInfoView(allPoints, this.#destinationsModel.destinations, this.#offersModel.offers);
     render(this.#tripInfoComponent, this.#headerContainer, RenderPosition.AFTERBEGIN);
   }
 
   #renderWaypoint = (point) => {
-    // console.log( this.#destinationsModel, this.#offersModel)
     const pointPresenter = new PointPresenter({
       waypointListContainer: this.#waypointListComponent.element,
       destinationsModel: this.#destinationsModel,
@@ -208,7 +212,6 @@ export default class WaypointListPresenter {
   };
 
   #renderPointList() {
-    // console.log('UPDATE');
     render(this.#waypointListComponent, this.#waypointListContainer);
 
     if (this.#isLoading) {

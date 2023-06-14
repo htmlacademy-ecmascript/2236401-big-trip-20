@@ -58,8 +58,6 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
   const typeListTemplate = createFormTypeTemplate(pointType.toLowerCase(), id, isDisabled);
   const destinationInfo = getDestination(destination, pointDestinations);
   const controlsTemplate = createFormControlsTemplate(formType, isDisabled, isSaving, isDeleting);
-  // const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
-  // const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
   const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
 
 
