@@ -4,10 +4,7 @@ import AbstractView from '../framework/view/abstract-view.js';
 
 function createWaypointItemTemplate(point, pointDestination, pointOffers) {
   const { type, basePrice, dateFrom, dateTo, isFavorite } = point;
-  // console.log(point, pointDestination, pointOffers,)
-
-  const { name } = pointDestination;
-
+  const name = pointDestination?.name;
   const favorite = isFavorite ? 'event__favorite-btn--active' : '';
 
   const startDay = dayjs(dateFrom).format('MMM D');
@@ -20,11 +17,11 @@ function createWaypointItemTemplate(point, pointDestination, pointOffers) {
   const duration = countDuration(dateFrom, dateTo);
   const eventDuration = constructionDuration(duration);
 
-  const checkedOffers = pointOffers.filter((offer) => point.offers.includes(offer.id));
+  const checkedOffers = pointOffers?.filter((offer) => point.offers.includes(offer.id));
 
   const getTitleOffersByType = () => {
     let needsOffers = '';
-    checkedOffers.forEach((checkedOffer) => {
+    checkedOffers?.forEach((checkedOffer) => {
       const { title, price } = checkedOffer;
       const selectedOffer = `
         <li class="event__offer">
@@ -82,7 +79,6 @@ export default class WaypointItemView extends AbstractView {
 
   constructor({ point, pointDestination, pointOffers, onEditClick, onFavoriteClick }) {
     super();
-    // console.log(point, pointDestination, pointOffers)
     this.#point = point;
     this.#pointDestination = pointDestination;
     this.#pointOffers = pointOffers;

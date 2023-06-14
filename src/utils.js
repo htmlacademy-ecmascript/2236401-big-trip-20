@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import { FilterType } from './const';
 
-// Функции для поиска случайного числа из диапазона
+// // Функции для поиска случайного числа из диапазона
 
 const getRandomInteger = (min, max) => {
   const lower = Math.ceil(Math.min(min, max));
@@ -10,44 +10,23 @@ const getRandomInteger = (min, max) => {
   return Math.floor(result);
 };
 
-const createRandomIdFromRangeGenerator = (min, max) => {
-  const previousValues = [];
-
-  return function () {
-    let currentValue = getRandomInteger(min, max);
-    if (previousValues.length >= (max - min + 1)) {
-      return null;
-    }
-    while (previousValues.includes(currentValue)) {
-      currentValue = getRandomInteger(min, max);
-    }
-    previousValues.push(currentValue);
-    return currentValue;
-  };
-};
-
 const getRandomNumber = (min, max) => getRandomInteger(min, max);
-const getRandomArrayElement = (items) => items[Math.floor(Math.random() * items.length)];
 
 
-//Функция для генерации дополнительных предложений
+const getByTypeOffers = (type, offers) => offers?.find((offer) => type === offer.type);
 
-const getRandomOffersByType = (offers, type) => {
-  const index = offers.map((offer) => offer.type).indexOf(type);
-  const offersIDs = [];
-
-  if (index !== -1) {
-    const offersByType = offers[index].offers;
-    if (offersByType) {
-      for (let i = 0; i < offersByType.length; i++) {
-        offersIDs.push(offersByType[i].id.toString());
-      }
-      return offersIDs;
-    }
+const getCheckedOffers = (type, pointOffers, offers) => {
+  const offersByType = getByTypeOffers(type, offers);
+  if (!offersByType || !offersByType.offers) {
+    return;
   }
-  return offersIDs;
+  const checkedOffers = offersByType.offers.filter((offer) =>
+    pointOffers
+      .some((offerId) => offerId === offer.id));
+  return checkedOffers;
 };
 
+const getDestination = (id, destinations) => destinations.find((destination) => destination.id === id);
 
 //Функция для генерации случайных дат
 
@@ -149,11 +128,7 @@ const getOffersByType = (offers, offerType) => {
 const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
 
 export {
-  getRandomArrayElement,
-  getRandomNumber,
   getRandomDate,
-  getRandomOffersByType,
-  createRandomIdFromRangeGenerator,
   countDuration,
   constructionDuration,
   isEscapeKey,
@@ -163,5 +138,7 @@ export {
   sortByTime,
   filter,
   getOffersByType,
-  isDatesEqual
+  isDatesEqual,
+  getCheckedOffers,
+  getDestination
 };

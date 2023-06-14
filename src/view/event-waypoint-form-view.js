@@ -1,25 +1,21 @@
-import { BLANK_WAYPOINT_DEFAULT, DEFAULT_POINT_TYPE, WAYPOINTS_TYPES, FormType, DESTINATIONS_CITIES } from '../const.js';
-// import dayjs from 'dayjs';
+import { BLANK_WAYPOINT_DEFAULT, DEFAULT_POINT_TYPE, WAYPOINTS_TYPES, FormType } from '../const.js';
 import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import flatpickr from 'flatpickr';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
-const createDestinationsTemplate = (arr) => {
-  let chosenDestination = '';
-  if (arr.length) {
-    arr.forEach((event) => {
-      chosenDestination += `<option value="${he.encode(event)}"></option>`;
-    });
-  }
-  return chosenDestination;
-};
 
-const createFormTypeTemplate = (pointType, id) =>
+const createFormTypeTemplate = (pointType, id, isDisabled) =>
   WAYPOINTS_TYPES.map((type) => /*html*/
     `<div class="event__type-item">
-      <input id="event-type-${type.toLowerCase()}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type" value="${type.toLowerCase()}" ${pointType.toLowerCase() === type.toLowerCase() ? 'checked' : ''}>
-      <label class="event__type-label  event__type-label--${type.toLowerCase()}" for="event-type-${type.toLowerCase()}-${id}">${type}</label>
+      <input id="event-type-${type.toLowerCase()}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type"
+        value="${type.toLowerCase()}"
+        ${pointType.toLowerCase() === type.toLowerCase() ? 'checked' : ''}
+        ${isDisabled ? 'disabled' : ''}
+      />
+      <label class="event__type-label  event__type-label--${type.toLowerCase()}"
+        for="event-type-${type.toLowerCase()}-${id}">${type}
+      </label>
     </div>`
   ).join('');
 
@@ -33,16 +29,22 @@ const createFormPhotosGalleryTemplate = (pictures) => {
   </div>`;
 };
 
-const createFormControlsTemplate = (formType) => {
+const createFormControlsTemplate = (formType, isDisabled, isSaving, isDeleting) => {
+
   const getResetButtonText = () => {
     if(formType === FormType.EDITING) {
-      return 'Delete';
+      return isDeleting ? 'Deleting...' : 'Delete';
     }
     return 'Cancel';
   };
+
   return /*html*/`
-    <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-    <button class="event__reset-btn" type="reset">${getResetButtonText()}</button>
+    <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>
+      ${isSaving ? 'saving...' : 'save'}
+    </button>
+    <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>
+      ${getResetButtonText()}
+    </button>
     ${formType === FormType.EDITING ? `<button class="event__rollup-btn" type="button" >
       <span class="visually-hidden">Open event</span>
     </button>` : ''}`;
@@ -51,26 +53,27 @@ const createFormControlsTemplate = (formType) => {
 const getDestination = (id, destinations) => destinations.find((destination) => destination.id === id);
 
 const createEventWaypointElement = ({point, pointDestinations, pointOffers, formType}) => {
-  // console.log(point, pointDestinations, pointOffers, formType);
-  const { basePrice, dateFrom, dateTo, destination, type, id } = point;
+  const { basePrice, dateFrom, dateTo, destination, type, id, isDisabled, isSaving, isDeleting } = point;
   const pointType = type !== '' ? type.toLowerCase() : DEFAULT_POINT_TYPE;
-  const typeListTemplate = createFormTypeTemplate(pointType.toLowerCase(), id);
+  const typeListTemplate = createFormTypeTemplate(pointType.toLowerCase(), id, isDisabled);
   const destinationInfo = getDestination(destination, pointDestinations);
-  const controlsTemplate = createFormControlsTemplate(formType);
-  // const timeFrom = dayjs(dateFrom).format('DD/MM/YY HH:mm');
-  // const timeTo = dayjs(dateTo).format('DD/MM/YY HH:mm');
-  // const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
+  const controlsTemplate = createFormControlsTemplate(formType, isDisabled, isSaving, isDeleting);
+  const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
 
 
   const isChecked = (offer) => point.offers.includes(offer.id) ? 'checked' : '';
 
-  const getByTypeOffers = (offersByType) => pointOffers.find((offer) => offer.type.toLowerCase() === offersByType).offers;
+  const getByTypeOffers = (offersByType) => pointOffers?.find((offer) => offer.type.toLowerCase() === offersByType)?.offers;
   const needsOffers = getByTypeOffers(type.toLowerCase());
 
-  const offersList = needsOffers
-    .map((offer) => `
+  const offersList = needsOffers?.map((offer) => `
       <div class="event__offer-selector">
-        <input class="event__offer-checkbox  visually-hidden" id="${offer.id}" type="checkbox" name="event-offer-luggage" data-offer-id="${offer.id}" ${isChecked(offer)}>
+        <input class="event__offer-checkbox  visually-hidden"
+          id="${offer.id}" type="checkbox" name="event-offer-luggage"
+          data-offer-id="${offer.id}"
+          ${isChecked(offer)}
+          ${isDisabled ? 'disabled' : ''}
+        />
         <label class="event__offer-label" for="${offer.id}">
           <span class="event__offer-title">${offer.title}</span>
           &plus;&euro;&nbsp;
@@ -89,7 +92,10 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
             <span class="visually-hidden">Choose event type</span>
             <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType}.png" alt="Event type icon">
           </label>
-          <input class="event__type-toggle  visually-hidden" id="event-type-toggle-${id}" type="checkbox">
+          <input class="event__type-toggle  visually-hidden"
+            id="event-type-toggle-${id}" type="checkbox"
+            ${isDisabled ? 'disabled' : ''}
+          />
           <div class="event__type-list">
             <fieldset class="event__type-group">
               <legend class="visually-hidden">Event type</legend>
@@ -101,18 +107,31 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
           <label class="event__label  event__type-output" for="event-destination-${id}">
             ${pointType}
           </label>
-          <input class="event__input  event__input--destination" id="event-destination-${id}" type="text" name="event-destination" value="${destinationInfo ? destinationInfo.name : ''}" list="destination-list-${id}">
+          <input class="event__input  event__input--destination"
+            id="event-destination-${id}" type="text" name="event-destination"
+            value="${destinationInfo ? destinationInfo.name : ''}"
+            list="destination-list-${id}"
+            ${isDisabled ? 'disabled' : ''}
+          />
           <datalist id="destination-list-${id}">
-            ${createDestinationsTemplate(DESTINATIONS_CITIES)}
+            ${destinationsList}
           </datalist>
         </div>
 
         <div class="event__field-group  event__field-group--time">
           <label class="visually-hidden" for="event-start-time-${id}">From</label>
-          <input class="event__input  event__input--time" id="event-start-time-${id}" type="text" name="event-start-time" value="${dateFrom}"}>
+          <input class="event__input  event__input--time"
+            id="event-start-time-${id}" type="text" name="event-start-time"
+            value="${dateFrom}"}
+            ${isDisabled ? 'disabled' : ''}
+          />
           &mdash;
           <label class="visually-hidden" for="event-end-time-${id}">To</label>
-          <input class="event__input  event__input--time" id="event-end-time-${id}" type="text" name="event-end-time" value="${dateTo}">
+          <input class="event__input  event__input--time"
+            id="event-end-time-${id}" type="text" name="event-end-time"
+            value="${dateTo}"
+            ${isDisabled ? 'disabled' : ''}
+          />
         </div>
 
         <div class="event__field-group  event__field-group--price">
@@ -120,7 +139,11 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
             <span class="visually-hidden">Price</span>
             &euro;
           </label>
-          <input class="event__input  event__input--price" id="event-price-${id}" type="text" name="event-price" value="${he.encode(basePrice.toString())}">
+          <input class="event__input  event__input--price" id="event-price-${id}"
+            type="text" name="event-price"
+            value="${he.encode(basePrice.toString())}"
+            ${isDisabled ? 'disabled' : ''}
+          />
         </div>
         ${controlsTemplate}
       </header>
@@ -133,7 +156,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
         </section>
         ${destinationInfo ? `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destinationInfo.name}, ${destinationInfo.description}</p>
+          <p class="event__destination-description">${destinationInfo.description}</p>
           ${createFormPhotosGalleryTemplate(destinationInfo.pictures)}
         </section>
       </section>` : ''}
@@ -154,7 +177,6 @@ export default class EventWaypointFormView extends AbstractStatefulView {
 
   constructor({ point = BLANK_WAYPOINT_DEFAULT, pointDestinations, pointOffers, formType, onSubmit, onReset, onDelete }) {
     super();
-    // console.log(point, pointDestinations, pointOffers, formType)
     this._setState(EventWaypointFormView.parsePointToState(point));
     this.#destinations = pointDestinations;
     this.#offers = pointOffers;
@@ -317,11 +339,20 @@ export default class EventWaypointFormView extends AbstractStatefulView {
 
 
   static parsePointToState(point) {
-    return {...point};
+    return {...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToPoint(state) {
     const point = {...state};
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
     return point;
   }
 }

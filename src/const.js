@@ -1,39 +1,10 @@
-const MIN_ID_NUMBER = 1;
-const MAX_ID_NUMBER = 30;
-const MIN_COUNT_PICTURES = 1;
-const MAX_COUNT_PICTURES = 10;
-const MIN_SRC_NUMBER = 100;
-const MAX_SRC_NUMBER = 200;
-const MIN_BASE_PRICE = 100;
-const MAX_BASE_PRICE = 3000;
-
-const POINTS_COUNT = 5;
-
-const DESTINATIONS_CITIES = ['Amsterdam', 'Alicante', 'Minsk', 'Tashkent', 'Chamonix', 'Geneva', 'Seoul', 'Sihanoukville', 'New York'];
-
 const WAYPOINTS_TYPES = ['Check-in', 'Sightseeing', 'Restaurant', 'Taxi', 'Bus', 'Train', 'Ship', 'Drive', 'Flight'];
-
-const DESTINATIONS_DESCRIPTIONS = [
-  'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Cras aliquet varius magna, non porta ligula feugiat eget.',
-  'Aliquam erat volutpat. Nunc fermentum tortor ac porta dapibus.',
-  'Fusce tristique felis at fermentum pharetra.',
-  'Sed blandit, eros vel aliquam faucibus, purus ex euismod diam, eu luctus nunc ante ut dui.',
-  'Nullam nunc ex, convallis sed finibus eget, sollicitudin eget ante. Phasellus eros mauris, condimentum sed nibh vitae, sodales efficitur ipsum.'
-];
-
-const PICTURES_DESCRIPTIONS = [
-  'Aliquam erat volutpat.',
-  'Cras aliquet varius magna.',
-  'Phasellus eros mauris.',
-  'Fusce tristique felis.',
-  'Nullam nunc ex.'
-];
 
 const DEFAULT_POINT_TYPE = 'taxi';
 const BLANK_WAYPOINT_DEFAULT = {
   'basePrice': '',
-  'dateFrom': new Date(),
-  'dateTo': new Date(),
+  'dateFrom': '',
+  'dateTo': '',
   'destination': '',
   'isFavorite': false,
   'offers': [],
@@ -75,22 +46,18 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
+};
+
+const FormatPattern = {
+  TRIP_INFO_DATE: 'D MMM',
+  DATE: 'MMM D',
+  TIME: 'HH:mm',
+  DATETIME: 'DD/MM/YY HH:mm',
 };
 
 export {
-  DESTINATIONS_CITIES,
   WAYPOINTS_TYPES,
-  DESTINATIONS_DESCRIPTIONS,
-  PICTURES_DESCRIPTIONS,
-  MIN_ID_NUMBER,
-  MAX_ID_NUMBER,
-  MIN_COUNT_PICTURES,
-  MAX_COUNT_PICTURES,
-  MIN_SRC_NUMBER,
-  MAX_SRC_NUMBER,
-  MIN_BASE_PRICE,
-  MAX_BASE_PRICE,
-  POINTS_COUNT,
   BLANK_WAYPOINT_DEFAULT,
   DEFAULT_POINT_TYPE,
   FilterType,
@@ -98,5 +65,6 @@ export {
   FormType,
   UserAction,
   UpdateType,
-  EmptyListMessage
+  EmptyListMessage,
+  FormatPattern
 };

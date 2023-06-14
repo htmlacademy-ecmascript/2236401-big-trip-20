@@ -1,21 +1,27 @@
 import Observable from '../framework/observable.js';
 
 export default class OffersModel extends Observable {
-  #service = [];
+  #pointsApiService = null;
   #offers = [];
 
-  constructor(service) {
+  constructor({pointsApiService}) {
     super();
-    this.#service = service;
-    this.#offers = this.#service.offers;
+    this.#pointsApiService = pointsApiService;
   }
 
   get offers() {
     return this.#offers;
   }
 
+  async init() {
+    this.#offers = await this.#pointsApiService.offers;
+  }
+
   getByType(type) {
-    return this.#offers
-      .find((offer) => offer.type.toLowerCase() === type.toLowerCase()).offers;
+    const offersByType = this.#offers.find((offer) => offer.type === type);
+
+    if (offersByType) {
+      return offersByType.offers;
+    }
   }
 }

@@ -1,13 +1,12 @@
 import Observable from '../framework/observable.js';
 
 export default class DestinationsModel extends Observable {
-  #service = [];
+  #pointsApiService = null;
   #destinations = [];
 
-  constructor(service) {
+  constructor({pointsApiService}) {
     super();
-    this.#service = service;
-    this.#destinations = this.#service.destinations;
+    this.#pointsApiService = pointsApiService;
   }
 
   get destinations() {
@@ -17,5 +16,9 @@ export default class DestinationsModel extends Observable {
   getById(id) {
     return this.#destinations
       .find((destination) => destination.id === id);
+  }
+
+  async init() {
+    this.#destinations = await this.#pointsApiService.destinations;
   }
 }
