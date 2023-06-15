@@ -40,7 +40,7 @@ const createFormControlsTemplate = (formType, isDisabled, isSaving, isDeleting) 
 
   return /*html*/`
     <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'disabled' : ''}>
-      ${isSaving ? 'saving...' : 'save'}
+      ${isSaving ? 'Saving...' : 'Save'}
     </button>
     <button class="event__reset-btn" type="reset" ${isDisabled ? 'disabled' : ''}>
       ${getResetButtonText()}
@@ -58,7 +58,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
   const typeListTemplate = createFormTypeTemplate(pointType.toLowerCase(), id, isDisabled);
   const destinationInfo = getDestination(destination, pointDestinations);
   const controlsTemplate = createFormControlsTemplate(formType, isDisabled, isSaving, isDeleting);
-  const destinationsList = pointDestinations?.map((item) => `<option value="${item.name}"></option>`).join('');
+  const destinationsList = pointDestinations?.map((item) => `<option value="${he.encode(item.name)}"></option>`).join('');
 
 
   const isChecked = (offer) => point.offers.includes(offer.id) ? 'checked' : '';
@@ -75,13 +75,12 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
           ${isDisabled ? 'disabled' : ''}
         />
         <label class="event__offer-label" for="${offer.id}">
-          <span class="event__offer-title">${offer.title}</span>
+          <span class="event__offer-title">${he.encode(offer.title)}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${offer.price}</span>
+          <span class="event__offer-price">${he.encode(offer.price.toString())}</span>
         </label>
       </div>`)
     .join('');
-
 
   return(/*html*/`
   <li class="trip-events__item">
@@ -90,7 +89,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType}.png" alt="Event type icon">
+            <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType}.png" alt="Event ${pointType} icon">
           </label>
           <input class="event__type-toggle  visually-hidden"
             id="event-type-toggle-${id}" type="checkbox"
@@ -109,7 +108,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
           </label>
           <input class="event__input  event__input--destination"
             id="event-destination-${id}" type="text" name="event-destination"
-            value="${destinationInfo ? destinationInfo.name : ''}"
+            value="${destinationInfo ? he.encode(destinationInfo.name) : ''}"
             list="destination-list-${id}"
             ${isDisabled ? 'disabled' : ''}
           />
@@ -148,15 +147,15 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
         ${controlsTemplate}
       </header>
       <section class="event__details">
-        <section class="event__section  event__section--offers">
+        ${(needsOffers && needsOffers.length) ? `<section class="event__section  event__section--offers">
           <h3 class="event__section-title  event__section-title--offers">Offers</h3>
           <div class="event__available-offers">
             ${offersList}
           </div>
-        </section>
+        </section>` : ''}
         ${destinationInfo ? `<section class="event__section  event__section--destination">
           <h3 class="event__section-title  event__section-title--destination">Destination</h3>
-          <p class="event__destination-description">${destinationInfo.description}</p>
+          <p class="event__destination-description">${he.encode(destinationInfo.description)}</p>
           ${createFormPhotosGalleryTemplate(destinationInfo.pictures)}
         </section>
       </section>` : ''}

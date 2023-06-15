@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
-import { countDuration, constructionDuration } from '../utils.js';
+import { calculateDuration, formatDuration } from '../utils.js';
 import AbstractView from '../framework/view/abstract-view.js';
+import he from 'he';
 
 function createWaypointItemTemplate(point, pointDestination, pointOffers) {
   const { type, basePrice, dateFrom, dateTo, isFavorite } = point;
@@ -14,8 +15,8 @@ function createWaypointItemTemplate(point, pointDestination, pointOffers) {
   const endTime = dayjs(dateTo).format('HH:mm');
   const endTimeDateTime = dayjs(dateTo).format('YYYY-MM-DDTHH:mm');
 
-  const duration = countDuration(dateFrom, dateTo);
-  const eventDuration = constructionDuration(duration);
+  const duration = calculateDuration(dateFrom, dateTo);
+  const eventDuration = formatDuration(duration);
 
   const checkedOffers = pointOffers?.filter((offer) => point.offers.includes(offer.id));
 
@@ -25,9 +26,9 @@ function createWaypointItemTemplate(point, pointDestination, pointOffers) {
       const { title, price } = checkedOffer;
       const selectedOffer = `
         <li class="event__offer">
-          <span class="event__offer-title">${title}</span>
+          <span class="event__offer-title">${he.encode(title)}</span>
           &plus;&euro;&nbsp;
-          <span class="event__offer-price">${price}</span>
+          <span class="event__offer-price">${he.encode(price.toString())}</span>
        </li>`;
       needsOffers += selectedOffer;
     });
@@ -41,7 +42,7 @@ function createWaypointItemTemplate(point, pointDestination, pointOffers) {
         <div class="event__type">
           <img class="event__type-icon" width="42" height="42" src="img/icons/${type.toLowerCase()}.png" alt="Event ${type} icon">
         </div>
-        <h3 class="event__title">${type} ${name}</h3>
+        <h3 class="event__title">${type} ${he.encode(name)}</h3>
         <div class="event__schedule">
           <p class="event__time">
             <time class="event__start-time" datetime="${startTimeDateTime}">${startTime}</time>
@@ -51,7 +52,7 @@ function createWaypointItemTemplate(point, pointDestination, pointOffers) {
           <p class="event__duration">${eventDuration}</p>
         </div>
         <p class="event__price">
-          &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
+          &euro;&nbsp;<span class="event__price-value">${he.encode(basePrice.toString())}</span>
         </p>
         <h4 class="visually-hidden">Offers:</h4>
         <ul class="event__selected-offers">${getTitleOffersByType()}</ul>
