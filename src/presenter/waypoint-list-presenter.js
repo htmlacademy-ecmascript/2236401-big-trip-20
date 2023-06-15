@@ -43,6 +43,7 @@ export default class WaypointListPresenter {
 
   #errorComponent = new ErrorView();
   #isError = false;
+  #addPointButtonStatus = null;
 
   #pointPresenters = new Map();
   #uiBlocker = new UiBlocker({
@@ -50,7 +51,7 @@ export default class WaypointListPresenter {
     upperLimit: TimeLimit.UPPER_LIMIT
   });
 
-  constructor ({ headerContainer, filtersModel, waypointListContainer, destinationsModel, offersModel, pointsModel, onNewPointDestroy }) {
+  constructor ({ headerContainer, filtersModel, waypointListContainer, destinationsModel, offersModel, pointsModel, onNewPointDestroy, addPointButtonStatus }) {
     this.#headerContainer = headerContainer;
     this.#filtersModel = filtersModel;
     this.#waypointListContainer = waypointListContainer;
@@ -65,7 +66,7 @@ export default class WaypointListPresenter {
       destinations: this.#destinationsModel.destinations,
       offers: this.#offersModel.offers,
     });
-
+    this.#addPointButtonStatus = addPointButtonStatus;
     this.#filtersModel.addObserver(this.#handleModelEvent);
     this.#pointsModel.addObserver(this.#handleModelEvent);
   }
@@ -233,15 +234,18 @@ export default class WaypointListPresenter {
   #renderPointList() {
     if (this.#isLoading) {
       this.#renderLoading();
+      this.#addPointButtonStatus(true);
       return;
     }
 
     if(this.#isError || !this.#destinationsModel.destinations || !this.#destinationsModel.destinations.length || !this.#offersModel.offers){
       this.#renderError();
       remove(this.#sortComponent);
+      this.#addPointButtonStatus(true);
       return;
     }
 
+    this.#addPointButtonStatus(false);
     const points = this.points;
     const pointCount = points.length;
 
