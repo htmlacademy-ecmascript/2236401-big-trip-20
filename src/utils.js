@@ -1,17 +1,6 @@
 import dayjs from 'dayjs';
 import { FilterType } from './const';
 
-// // Функции для поиска случайного числа из диапазона
-
-const getRandomInteger = (min, max) => {
-  const lower = Math.ceil(Math.min(min, max));
-  const upper = Math.floor(Math.max(min, max));
-  const result = Math.random() * (upper - lower + 1) + lower;
-  return Math.floor(result);
-};
-
-const getRandomNumber = (min, max) => getRandomInteger(min, max);
-
 
 const getByTypeOffers = (type, offers) => offers?.find((offer) => type === offer.type);
 
@@ -28,31 +17,8 @@ const getCheckedOffers = (type, pointOffers, offers) => {
 
 const getDestination = (id, destinations) => destinations.find((destination) => destination.id === id);
 
-//Функция для генерации случайных дат
 
-const getRandomDate = () => {
-  const minCount = 1;
-  const maxCountDays = 15;
-  const maxCountHours = 23;
-  const maxCountMinutes = 59;
-
-  const startDate = dayjs()
-    .add(getRandomNumber(minCount, maxCountDays), 'day')
-    .add(getRandomNumber(minCount, maxCountHours), 'hour')
-    .add(getRandomNumber(minCount, maxCountMinutes), 'minute');
-
-  const endDate = startDate.clone()
-    .add(getRandomInteger(0, maxCountDays), 'day')
-    .add(getRandomInteger(0, maxCountHours), 'hour')
-    .add(getRandomInteger(0, maxCountMinutes), 'minute');
-
-  return {
-    start: startDate.toDate(),
-    end: endDate.toDate()
-  };
-};
-
-const countDuration = (start, end) => {
+const calculateDuration = (start, end) => {
   const interval = new Date(end - start);
 
   return {
@@ -62,7 +28,7 @@ const countDuration = (start, end) => {
   };
 };
 
-const constructionDuration = (interval) => {
+const formatDuration = (interval) => {
   const duration = [];
   if (interval.days !== 0) {
     duration[0] = String(interval.days).padStart(2, '0');
@@ -82,30 +48,23 @@ const constructionDuration = (interval) => {
 
 const isEscapeKey = (evt) => evt.key === 'Escape' || evt.key === 'Esc';
 
-const checkWaypointStatus = (waypointStart, waypointEnd) => {
+const getFilterTypeByDateRange = (waypointStart, waypointEnd) => {
   const now = new Date();
   if (waypointStart > now) {
-    return 'future';
+    return FilterType.FUTURE;
   } else if (waypointStart <= now && waypointEnd >= now) {
-    return 'present';
-  } else {
-    return 'past';
+    return FilterType.PRESENT;
   }
+  return FilterType.PAST;
 };
 
 const filter = {
   [FilterType.EVERYTHING]: (waypoints) => waypoints,
-  [FilterType.FUTURE]: (waypoints) => waypoints.filter((waypoint) => checkWaypointStatus(waypoint.dateFrom, waypoint.dateTo) === 'future'),
-  [FilterType.PRESENT]: (waypoints) => waypoints.filter((waypoint) => checkWaypointStatus(waypoint.dateFrom, waypoint.dateTo) === 'present'),
-  [FilterType.PAST]: (waypoints) => waypoints.filter((waypoint) => checkWaypointStatus(waypoint.dateFrom, waypoint.dateTo) === 'past'),
+  [FilterType.FUTURE]: (waypoints) => waypoints.filter((waypoint) => getFilterTypeByDateRange(waypoint.dateFrom, waypoint.dateTo) === FilterType.FUTURE),
+  [FilterType.PRESENT]: (waypoints) => waypoints.filter((waypoint) => getFilterTypeByDateRange(waypoint.dateFrom, waypoint.dateTo) === FilterType.PRESENT),
+  [FilterType.PAST]: (waypoints) => waypoints.filter((waypoint) => getFilterTypeByDateRange(waypoint.dateFrom, waypoint.dateTo) === FilterType.PAST),
 };
 
-const createFilter = (waypoints) => Object.entries(filter).map(
-  ([filterName, filterWaypoints]) => ({
-    name: filterName,
-    isDisabled:!(filterWaypoints(waypoints).length > 0)
-  }),
-);
 
 // сортировка точек маршрута
 
@@ -128,11 +87,9 @@ const getOffersByType = (offers, offerType) => {
 const isDatesEqual = (dateA, dateB) => dayjs(dateA).isSame(dateB);
 
 export {
-  getRandomDate,
-  countDuration,
-  constructionDuration,
+  calculateDuration,
+  formatDuration,
   isEscapeKey,
-  createFilter,
   sortByDay,
   sortByPrice,
   sortByTime,

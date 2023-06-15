@@ -13,6 +13,7 @@ import ListEmptyView from '../view/empty-waypoint-list-view.js';
 import PointPresenter from './point-presenter.js';
 import NewPointPresenter from './new-point-presenter.js';
 import LoadingView from '../view/loading-view.js';
+import ErrorView from '../view/error-view.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 const TimeLimit = {
@@ -39,6 +40,9 @@ export default class WaypointListPresenter {
   #tripInfoComponent = null;
   #loadingComponent = new LoadingView();
   #isLoading = true;
+
+  #errorComponent = new ErrorView();
+  #isError = false;
 
   #pointPresenters = new Map();
   #uiBlocker = new UiBlocker({
@@ -156,6 +160,14 @@ export default class WaypointListPresenter {
         remove(this.#loadingComponent);
         this.#renderPointList();
         break;
+      case UpdateType.INIT_ERROR:{
+        this.#isLoading = false;
+        this.#isError = true;
+        remove(this.#loadingComponent);
+        this.#clearPointList();
+        this.#renderPointList();
+        break;
+      }
     }
   };
 
@@ -190,7 +202,11 @@ export default class WaypointListPresenter {
   }
 
   #renderLoading() {
-    render(this.#loadingComponent, this.#waypointListComponent.element, RenderPosition.AFTERBEGIN);
+    render(this.#loadingComponent, this.#waypointListContainer);
+  }
+
+  #renderError() {
+    render(this.#errorComponent, this.#waypointListContainer);
   }
 
   #handleSortTypeChange = (sortType) => {
@@ -203,6 +219,9 @@ export default class WaypointListPresenter {
   };
 
   #renderSort = () => {
+    if(this.#isError){
+      return;
+    }
     this.#sortComponent = new ListSortView({
       currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
@@ -212,10 +231,14 @@ export default class WaypointListPresenter {
   };
 
   #renderPointList() {
-    render(this.#waypointListComponent, this.#waypointListContainer);
-
     if (this.#isLoading) {
       this.#renderLoading();
+      return;
+    }
+
+    if(this.#isError || !this.#destinationsModel.destinations || !this.#destinationsModel.destinations.length || !this.#offersModel.offers){
+      this.#renderError();
+      remove(this.#sortComponent);
       return;
     }
 
@@ -227,6 +250,7 @@ export default class WaypointListPresenter {
     } else {
       this.#renderTripInfo();
     }
+    render(this.#waypointListComponent, this.#waypointListContainer);
     this.#renderSort();
     this.#renderWaypoints(points);
   }
