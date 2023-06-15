@@ -43,22 +43,27 @@ const waypointListPresenter = new WaypointListPresenter({
   destinationsModel,
   offersModel,
   pointsModel,
-  onNewPointDestroy: handleNewPointFormClose
+  onNewPointDestroy: handleNewPointFormClose,
+  addPointButtonStatus: addPointButtonStatus
 });
 
 const addNewWaypointComponent = new AddNewWaypointButtonView({ onAddClickHandler: handleAddNewWaypoint });
 
 function handleAddNewWaypoint() {
   waypointListPresenter.createWaypoint();
-  addNewWaypointComponent.element.disabled = true;
+  addPointButtonStatus(true);
 }
 
 function handleNewPointFormClose() {
-  addNewWaypointComponent.element.disabled = false;
+  addPointButtonStatus(false);
 }
+
+function addPointButtonStatus(value) {
+  addNewWaypointComponent.element.disabled = value;
+}
+render(addNewWaypointComponent, tripInfoContainer, RenderPosition.BEFOREEND);
 
 waypointListPresenter.init();
 filtersPresenter.init();
 pointsModel.init();
 
-render(addNewWaypointComponent, tripInfoContainer, RenderPosition.BEFOREEND);
