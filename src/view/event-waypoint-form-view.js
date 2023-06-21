@@ -8,13 +8,13 @@ import he from 'he';
 const createFormTypeTemplate = (pointType, id, isDisabled) =>
   WAYPOINTS_TYPES.map((type) => /*html*/
     `<div class="event__type-item">
-      <input id="event-type-${type.toLowerCase()}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type"
-        value="${type.toLowerCase()}"
-        ${pointType.toLowerCase() === type.toLowerCase() ? 'checked' : ''}
+      <input id="event-type-${he.encode(type.toLowerCase())}-${id}" class="event__type-input  visually-hidden" type="radio" name="event-type"
+        value="${he.encode(type.toLowerCase())}"
+        ${he.encode(pointType.toLowerCase()) === he.encode(type.toLowerCase()) ? 'checked' : ''}
         ${isDisabled ? 'disabled' : ''}
       />
-      <label class="event__type-label  event__type-label--${type.toLowerCase()}"
-        for="event-type-${type.toLowerCase()}-${id}">${type}
+      <label class="event__type-label  event__type-label--${he.encode(type.toLowerCase())}"
+        for="event-type-${he.encode(type.toLowerCase())}-${id}">${he.encode(type)}
       </label>
     </div>`
   ).join('');
@@ -54,8 +54,8 @@ const getDestination = (id, destinations) => destinations.find((destination) => 
 
 const createEventWaypointElement = ({point, pointDestinations, pointOffers, formType}) => {
   const { basePrice, dateFrom, dateTo, destination, type, id, isDisabled, isSaving, isDeleting } = point;
-  const pointType = type !== '' ? type.toLowerCase() : DEFAULT_POINT_TYPE;
-  const typeListTemplate = createFormTypeTemplate(pointType.toLowerCase(), id, isDisabled);
+  const pointType = type !== '' ? he.encode(type.toLowerCase()) : DEFAULT_POINT_TYPE;
+  const typeListTemplate = createFormTypeTemplate(he.encode(pointType.toLowerCase()), id, isDisabled);
   const destinationInfo = getDestination(destination, pointDestinations);
   const controlsTemplate = createFormControlsTemplate(formType, isDisabled, isSaving, isDeleting);
   const destinationsList = pointDestinations?.map((item) => `<option value="${he.encode(item.name)}"></option>`).join('');
@@ -89,7 +89,10 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
         <div class="event__type-wrapper">
           <label class="event__type  event__type-btn" for="event-type-toggle-${id}">
             <span class="visually-hidden">Choose event type</span>
-            <img class="event__type-icon" width="17" height="17" src="img/icons/${pointType}.png" alt="Event ${pointType} icon">
+            <img class="event__type-icon" width="17" height="17"
+              src="img/icons/${he.encode(pointType)}.png"
+              alt="Event ${he.encode(pointType)} icon"
+            />
           </label>
           <input class="event__type-toggle  visually-hidden"
             id="event-type-toggle-${id}" type="checkbox"
@@ -104,7 +107,7 @@ const createEventWaypointElement = ({point, pointDestinations, pointOffers, form
         </div>
         <div class="event__field-group  event__field-group--destination">
           <label class="event__label  event__type-output" for="event-destination-${id}">
-            ${pointType}
+            ${he.encode(pointType)}
           </label>
           <input class="event__input  event__input--destination"
             id="event-destination-${id}" type="text" name="event-destination"
