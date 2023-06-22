@@ -2,6 +2,7 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view';
 import { getCheckedOffers, getDestination } from '../utils';
 import { FormatPattern } from '../const';
 import dayjs from 'dayjs';
+import he from 'he';
 
 const POINTS_COUNT_MAX = 3;
 
@@ -56,10 +57,10 @@ export default class TripInfoView extends AbstractStatefulView {
       const firstDestination = getDestination(this.#points[0].destination, this.#destinations).name;
       const lastDestination = getDestination(this.#points.at(-1).destination, this.#destinations).name;
 
-      return [firstDestination, lastDestination].join(' &mdash; ... &mdash; ');
+      return [he.encode(firstDestination), he.encode(lastDestination)].join(' &mdash; ... &mdash; ');
     }
 
-    return selectedDestinations.join(' &mdash; ');
+    return he.encode(selectedDestinations).join(' &mdash; ');
   };
 
   #getTripPrice = () => {

@@ -52,9 +52,12 @@ const getFilterTypeByDateRange = (waypointStart, waypointEnd) => {
   const now = new Date();
   if (waypointStart > now) {
     return FilterType.FUTURE;
-  } else if (waypointStart <= now && waypointEnd >= now) {
+  }
+
+  if (waypointStart <= now && waypointEnd >= now) {
     return FilterType.PRESENT;
   }
+
   return FilterType.PAST;
 };
 
