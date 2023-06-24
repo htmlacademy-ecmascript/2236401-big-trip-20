@@ -60,7 +60,7 @@ export default class TripInfoView extends AbstractStatefulView {
       return [he.encode(firstDestination), he.encode(lastDestination)].join(' &mdash; ... &mdash; ');
     }
 
-    return he.encode(selectedDestinations).join(' &mdash; ');
+    return selectedDestinations.map(he.encode).join(' &mdash; ');
   };
 
   #getTripPrice = () => {
